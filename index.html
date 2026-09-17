@@ -7,7 +7,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 sm:p-6 text-gray-800 font-sans">
+<body class="bg-gray-100 min-h-screen pb-24 p-4 sm:p-6 text-gray-800 font-sans">
 
     <!-- Container Utama -->
     <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
@@ -45,6 +45,42 @@
 
         </div>
 
+    </div>
+
+    <!-- Sticky Bottom Navigation Bar (Dropdown 50% / 50%) -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-lg z-50">
+        <div class="max-w-md mx-auto flex gap-3">
+            
+            <!-- Dropdown 1: Anggota (50%) -->
+            <div class="w-1/2 relative">
+                <select class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5 pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100">
+                    <option value="" disabled selected>Pilih Nama</option>
+                    <option value="syukron">Syukron</option>
+                    <option value="arka">Arka</option>
+                    <option value="rezka">Rezka</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Dropdown 2: Kategori (50%) -->
+            <div class="w-1/2 relative">
+                <select class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5 pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100">
+                    <option value="" disabled selected>Pilih Kategori</option>
+                    <option value="halaman">Halaman</option>
+                    <option value="kelas">Kelas</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+
+        </div>
     </div>
 
 </body>
