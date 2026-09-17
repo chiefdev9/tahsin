@@ -3,12 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Judul Halaman</title>
+    <title>Tabel Mobile-First</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen p-4 sm:p-6 text-gray-800 font-sans">
 
-    <h1>Selamat Datang!</h1>
-    <p>Ini adalah paragraf pertama di web kamu.</p>
+    <!-- Container Utama -->
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        
+        <!-- Header Tabel -->
+        <div class="grid grid-cols-[10%_70%_20%] bg-indigo-600 text-white font-semibold text-sm py-3 px-2 text-center items-center">
+            <div>No</div>
+            <div class="text-left px-2">Nama</div>
+            <div>Hal</div>
+        </div>
+
+        <!-- Body Tabel / Data -->
+        <div class="divide-y divide-gray-200 text-sm">
+            
+            <!-- Dummy Data 1 -->
+            <div class="grid grid-cols-[10%_70%_20%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-colors">
+                <div class="font-medium text-gray-500">1</div>
+                <div class="text-left px-2 font-medium text-gray-900 truncate">Panduan Desain UI/UX</div>
+                <div class="bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">12</div>
+            </div>
+
+            <!-- Dummy Data 2 -->
+            <div class="grid grid-cols-[10%_70%_20%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-colors">
+                <div class="font-medium text-gray-500">2</div>
+                <div class="text-left px-2 font-medium text-gray-900 truncate">Dasar-Dasar Administrasi Digital</div>
+                <div class="bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">45</div>
+            </div>
+
+            <!-- Dummy Data 3 -->
+            <div class="grid grid-cols-[10%_70%_20%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-colors">
+                <div class="font-medium text-gray-500">3</div>
+                <div class="text-left px-2 font-medium text-gray-900 truncate">Optimasi Workflow Kerja</div>
+                <div class="bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">88</div>
+            </div>
+
+        </div>
+
+    </div>
 
 </body>
 </html>
