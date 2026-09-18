@@ -106,54 +106,61 @@ function toggleName(element) {
 
 document.addEventListener("DOMContentLoaded", renderTable);
 
-// Buka / Tutup Menu Dropdown
+// Buka / Tutup Menu Dropdown & Overlay Backdrop
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
   const targetMenu = targetDropdown.querySelector('.dropdown-menu');
   const backdrop = document.getElementById('dropdown-backdrop');
+  
   const isHidden = targetMenu.classList.contains('hidden');
 
-  // Tutup semua menu yang sedang terbuka
+  // Tutup semua menu & backdrop terlebih dahulu
   closeAllDropdowns();
 
-  // Jika sebelumnya tertutup, buka menu yang diklik & munculkan backdrop
+  // Jika sebelumnya tertutup, buka menu yang diklik & tampilkan backdrop
   if (isHidden) {
     targetMenu.classList.remove('hidden');
     backdrop.classList.remove('hidden');
   }
 }
 
-// Tutup Semua Dropdown dan Backdrop
+// Fungsi untuk Menutup Semua Dropdown dan Backdrop
 function closeAllDropdowns() {
   document.querySelectorAll('.dropdown-menu').forEach(menu => {
     menu.classList.add('hidden');
   });
+  
   const backdrop = document.getElementById('dropdown-backdrop');
-  if (backdrop) backdrop.classList.add('hidden');
+  if (backdrop) {
+    backdrop.classList.add('hidden');
+  }
 }
 
-// Pilih Opsi & Perbarui Ikon Ceklis
+// Pilih Opsi, Perbarui Teks Tombol, & Atur Ikon Ceklis
 function selectOption(dropdownId, value) {
   const dropdown = document.getElementById(dropdownId);
   
-  // Update teks tombol utama
-  dropdown.querySelector('.selected-text').innerText = value;
+  // 1. Ubah teks pada tombol utama yang terlihat di bottom bar
+  const selectedTextElement = dropdown.querySelector('.selected-text');
+  if (selectedTextElement) {
+    selectedTextElement.innerText = value;
+  }
 
-  // Atur ulang status aktif dan ikon ceklis di daftar pilihan
+  // 2. Perbarui tampilan aktif (ikon ceklis & warna background) pada pilihan
   const options = dropdown.querySelectorAll('.option-btn');
   options.forEach(btn => {
-    const textSpan = btn.querySelector('span').innerText;
+    const textSpan = btn.querySelector('span').innerText.trim();
     const checkIcon = btn.querySelector('.check-icon');
 
     if (textSpan === value) {
-      checkIcon.classList.remove('hidden');
+      if (checkIcon) checkIcon.classList.remove('hidden');
       btn.classList.add('bg-indigo-50/80', 'text-indigo-600');
     } else {
-      checkIcon.classList.add('hidden');
+      if (checkIcon) checkIcon.classList.add('hidden');
       btn.classList.remove('bg-indigo-50/80', 'text-indigo-600');
     }
   });
 
-  // Tutup menu setelah memilih
+  // 3. Tutup kembali bottom sheet setelah opsi dipilih
   closeAllDropdowns();
 }
