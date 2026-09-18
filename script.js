@@ -106,75 +106,69 @@ function toggleName(element) {
 
 document.addEventListener("DOMContentLoaded", renderTable);
 
-// 1. Buka / Tutup Menu Dropdown & Overlay Backdrop
+/*
+FUNGSI MENU BAR DIBAWAH
+DISESUAIKAN DENGAN GURU SMALA
+*/
+// 1. Buka / Tutup Dropdown
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
   if (!targetDropdown) return;
 
-  const targetMenu = targetDropdown.querySelector('.dropdown-menu');
-  const backdrop = document.getElementById('dropdown-backdrop');
-  
-  const isHidden = targetMenu.classList.contains('hidden');
+  const targetMenu = targetDropdown.querySelector(".dropdown-menu");
+  const backdrop = document.getElementById("dropdown-backdrop");
 
-  // Tutup semua menu yang terbuka dulu
+  if (!targetMenu) return;
+
+  const isHidden = targetMenu.classList.contains("hidden");
+
+  // Tutup menu lain yang sedang terbuka
   closeAllDropdowns();
 
-  // Jika sebelumnya tertutup, tampilkan menu & backdrop
+  // Tampilkan jika sebelumnya tersembunyi
   if (isHidden) {
-    targetMenu.classList.remove('hidden');
-    if (backdrop) backdrop.classList.remove('hidden');
+    targetMenu.classList.remove("hidden");
+    if (backdrop) backdrop.classList.remove("hidden");
   }
 }
 
-// 2. Fungsi Menutup Semua Menu & Backdrop (Bisa dipanggil dari luar / klik backdrop)
+// 2. Tutup Semua Menu & Overlay Backdrop
 function closeAllDropdowns() {
-  // Sembunyikan semua modal bottom sheet
-  document.querySelectorAll('.dropdown-menu').forEach(menu => {
-    menu.classList.add('hidden');
+  document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+    menu.classList.add("hidden");
   });
-  
-  // Sembunyikan overlay hitam ( backdrop )
-  const backdrop = document.getElementById('dropdown-backdrop');
+
+  const backdrop = document.getElementById("dropdown-backdrop");
   if (backdrop) {
-    backdrop.classList.add('hidden');
+    backdrop.classList.add("hidden");
   }
 }
 
-// 3. Pilih Opsi, Update Teks Tombol Utama, & Atur Ikon Ceklis
+// 3. Update Pilihan & Indikator Ceklis
 function selectOption(dropdownId, value) {
   const dropdown = document.getElementById(dropdownId);
   if (!dropdown) return;
 
-  // A. Perbarui teks pada tombol yang menempel di navigation bar
-  const selectedText = dropdown.querySelector('.selected-text');
+  // Perbarui Teks Tombol Utama
+  const selectedText = dropdown.querySelector(".selected-text");
   if (selectedText) {
     selectedText.innerText = value;
   }
 
-  // B. Kelola status aktif (efek warna & ikon ceklis) pada daftar pilihan
-  const options = dropdown.querySelectorAll('.option-btn');
-  options.forEach(btn => {
-    const textSpan = btn.querySelector('span');
-    const checkIcon = btn.querySelector('.check-icon');
+  // Perbarui Tanda Ceklis
+  const options = dropdown.querySelectorAll(".option-btn");
+  options.forEach((btn) => {
+    const textSpan = btn.querySelector("span");
+    const checkIcon = btn.querySelector(".check-icon");
 
     if (textSpan && textSpan.innerText.trim() === value) {
-      // Opsi Terpilih
-      btn.classList.add('active-option');
-      if (checkIcon) checkIcon.classList.remove('hidden');
+      if (checkIcon) checkIcon.classList.remove("hidden");
+      btn.classList.add("bg-indigo-50/80", "text-indigo-600");
     } else {
-      // Opsi Lainnya
-      btn.classList.remove('active-option');
-      if (checkIcon) checkIcon.classList.add('hidden');
+      if (checkIcon) checkIcon.classList.add("hidden");
+      btn.classList.remove("bg-indigo-50/80", "text-indigo-600");
     }
   });
 
-  // C. Otomatis tutup bottom sheet setelah pilihan diklik
   closeAllDropdowns();
 }
-
-// 4. Tutup Menu jika Pengguna Menekan Tombol 'ESC' di Keyboard
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-    closeAllDropdowns();
-  }
-});
