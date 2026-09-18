@@ -36,10 +36,16 @@ const muridList = [
   { no: 25, nama: "Syaima Salsabila Aristya Maulana", jk: "P", halaman: "192" },
 ];
 
+
+
+/*
+FUNGSI INI MEMBUAT NAMA DAPAT TERBACA PENUH
+DAN DAPAT DIKEMBALIKAN MENJADI LEBIH SINGKAT
+*/
+
 function renderTable() {
   const container = document.getElementById("table-body");
 
-  // Pastikan element container ada sebelum melakukan rendering
   if (!container) return;
 
   container.innerHTML = muridList
@@ -50,9 +56,18 @@ function renderTable() {
         : "bg-blue-100 text-blue-700";
 
       return `
-            <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-colors">
+            <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all relative">
                 <div class="font-medium text-gray-500">${item.no}</div>
-                <div class="text-left px-2 font-medium text-gray-900 truncate">${item.nama}</div>
+                
+                <!-- Pembungkus elemen nama dengan event onclick -->
+                <div 
+                  onclick="toggleName(this)" 
+                  class="text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-200"
+                  title="Klik untuk melihat nama lengkap"
+                >
+                  ${item.nama}
+                </div>
+
                 <div>
                     <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
                 </div>
@@ -63,5 +78,34 @@ function renderTable() {
     .join("");
 }
 
-// Jalankan fungsi setelah HTML selesai dimuat
+// Fungsi untuk melebarkan nama dan menutupi kolom JK & Halaman saat diklik
+function toggleName(element) {
+  // Mengecek apakah nama sedang dalam kondisi terpotong (truncate)
+  const isTruncated = element.classList.contains("truncate");
+
+  if (isTruncated) {
+    // Hilangkan pemotongan (...) dan lebarkan menutupi 3 kolom ke kanan
+    element.classList.remove("truncate");
+    element.classList.add(
+      "col-span-3",
+      "bg-white",
+      "z-10",
+      "shadow-sm",
+      "rounded",
+      "py-1",
+    );
+  } else {
+    // Kembalikan ke tampilan semula (terpotong 58%)
+    element.classList.add("truncate");
+    element.classList.remove(
+      "col-span-3",
+      "bg-white",
+      "z-10",
+      "shadow-sm",
+      "rounded",
+      "py-1",
+    );
+  }
+}
+
 document.addEventListener("DOMContentLoaded", renderTable);
