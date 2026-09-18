@@ -110,17 +110,26 @@ document.addEventListener("DOMContentLoaded", renderTable);
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
   const targetMenu = targetDropdown.querySelector('.dropdown-menu');
+  const backdrop = document.getElementById('dropdown-backdrop');
   const isHidden = targetMenu.classList.contains('hidden');
 
-  // Tutup semua dropdown lain yang sedang terbuka
+  // Tutup semua menu yang sedang terbuka
+  closeAllDropdowns();
+
+  // Jika sebelumnya tertutup, buka menu yang diklik & munculkan backdrop
+  if (isHidden) {
+    targetMenu.classList.remove('hidden');
+    backdrop.classList.remove('hidden');
+  }
+}
+
+// Tutup Semua Dropdown dan Backdrop
+function closeAllDropdowns() {
   document.querySelectorAll('.dropdown-menu').forEach(menu => {
     menu.classList.add('hidden');
   });
-
-  // Jika sebelumnya tertutup, buka menu yang diklik
-  if (isHidden) {
-    targetMenu.classList.remove('hidden');
-  }
+  const backdrop = document.getElementById('dropdown-backdrop');
+  if (backdrop) backdrop.classList.add('hidden');
 }
 
 // Pilih Opsi & Perbarui Ikon Ceklis
@@ -137,23 +146,14 @@ function selectOption(dropdownId, value) {
     const checkIcon = btn.querySelector('.check-icon');
 
     if (textSpan === value) {
-      checkIcon.classList.remove('hidden'); // Tampilkan ceklis
-      btn.classList.add('bg-gray-50', 'text-indigo-600');
+      checkIcon.classList.remove('hidden');
+      btn.classList.add('bg-indigo-50/80', 'text-indigo-600');
     } else {
-      checkIcon.classList.add('hidden'); // Sembunyikan ceklis
-      btn.classList.remove('bg-gray-50', 'text-indigo-600');
+      checkIcon.classList.add('hidden');
+      btn.classList.remove('bg-indigo-50/80', 'text-indigo-600');
     }
   });
 
   // Tutup menu setelah memilih
-  dropdown.querySelector('.dropdown-menu').classList.add('hidden');
+  closeAllDropdowns();
 }
-
-// Tutup dropdown otomatis jika pengguna mengklik area luar menu
-document.addEventListener('click', (event) => {
-  if (!event.target.closest('.custom-dropdown')) {
-    document.querySelectorAll('.dropdown-menu').forEach(menu => {
-      menu.classList.add('hidden');
-    });
-  }
-});

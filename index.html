@@ -12,8 +12,8 @@
     <title>Tabel Tim Tahsin</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-        <!-- Panggil File JS Eksternal -->
-        <script src="script.js" defer></script>
+    <!-- Panggil File JS Eksternal -->
+    <script src="script.js" defer></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen pb-24 p-4 sm:p-6 text-gray-800 font-sans">
@@ -34,135 +34,143 @@
         <div id="table-body" class="divide-y divide-gray-200 text-sm"></div>
     </div>
 
+    <!-- Overlay Hitam Latar Belakang (Backdrop) -->
+    <div id="dropdown-backdrop" onclick="closeAllDropdowns()"
+        class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity"></div>
+
     <!-- Sticky Bottom Navigation Bar -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl z-50">
+    <div
+        class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl z-50">
         <div class="max-w-md mx-auto grid grid-cols-3 gap-2 sm:gap-3">
-    
+
             <!-- Dropdown 1: Anggota/Guru -->
-            <div class="relative custom-dropdown" id="dropdown-guru">
-                <!-- Tombol Utama -->
+            <div class="custom-dropdown" id="dropdown-guru">
                 <button type="button" onclick="toggleDropdown('dropdown-guru')"
                     class="w-full bg-gray-100 hover:bg-gray-200/80 text-gray-900 font-bold text-xs sm:text-sm rounded-xl p-3 flex items-center justify-between transition-all outline-none">
                     <span class="selected-text truncate">Syukron</span>
-                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor" stroke-width="2.5"
-                        viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor"
+                        stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-    
-                <!-- Menu Pilihan (Popup Overlay) -->
+
+                <!-- Bottom Sheet Full Width (Width 100%) -->
                 <div
-                    class="dropdown-menu hidden absolute bottom-full mb-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-1.5 z-50 space-y-1">
-                    <div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 tracking-wider uppercase">PILIH GURU</div>
-    
-                    <button onclick="selectOption('dropdown-guru', 'Syukron')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800 active-option">
-                        <span>Syukron</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="3"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
-    
-                    <button onclick="selectOption('dropdown-guru', 'Arka')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800">
-                        <span>Arka</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600 hidden" fill="none" stroke="currentColor"
-                            stroke-width="3" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
-    
-                    <button onclick="selectOption('dropdown-guru', 'Rezka')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800">
-                        <span>Rezka</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600 hidden" fill="none" stroke="currentColor"
-                            stroke-width="3" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
+                    class="dropdown-menu hidden fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-3xl shadow-2xl border-t border-gray-100 p-5 z-[60] space-y-2 max-w-md mx-auto">
+                    <!-- Handle Bar (Garis kecil di atas modal) -->
+                    <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
+                    <div class="px-1 pb-2 text-xs font-extrabold text-gray-400 tracking-wider uppercase">PILIH ASATIDZ /
+                        ASATIDZAH</div>
+
+                    <div class="space-y-1.5">
+                        <button onclick="selectOption('dropdown-guru', 'Syukron')"
+                            class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800 active-option">
+                            <span>Syukron</span>
+                            <svg class="check-icon w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+
+                        <button onclick="selectOption('dropdown-guru', 'Arka')"
+                            class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800">
+                            <span>Arka</span>
+                            <svg class="check-icon w-5 h-5 text-indigo-600 hidden" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+
+                        <button onclick="selectOption('dropdown-guru', 'Rezka')"
+                            class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800">
+                            <span>Rezka</span>
+                            <svg class="check-icon w-5 h-5 text-indigo-600 hidden" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
-    
+
             <!-- Dropdown 2: Kategori -->
-            <div class="relative custom-dropdown" id="dropdown-kategori">
+            <div class="custom-dropdown" id="dropdown-kategori">
                 <button type="button" onclick="toggleDropdown('dropdown-kategori')"
                     class="w-full bg-gray-100 hover:bg-gray-200/80 text-gray-900 font-bold text-xs sm:text-sm rounded-xl p-3 flex items-center justify-between transition-all outline-none">
                     <span class="selected-text truncate">Halaman</span>
-                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor" stroke-width="2.5"
-                        viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor"
+                        stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-    
-                <div
-                    class="dropdown-menu hidden absolute bottom-full mb-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-1.5 z-50 space-y-1">
-                    <div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 tracking-wider uppercase">KATEGORI</div>
-    
-                    <button onclick="selectOption('dropdown-kategori', 'Halaman')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800 active-option">
-                        <span>Halaman</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="3"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
-    
-                    <button onclick="selectOption('dropdown-kategori', 'Jilid')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800">
-                        <span>Jilid</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600 hidden" fill="none" stroke="currentColor"
-                            stroke-width="3" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
 
-                    <button onclick="selectOption('dropdown-kategori', 'Kelas')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800">
-                        <span>Kelas</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600 hidden" fill="none" stroke="currentColor" stroke-width="3"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
+                <div
+                    class="dropdown-menu hidden fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-3xl shadow-2xl border-t border-gray-100 p-5 z-[60] space-y-2 max-w-md mx-auto">
+                    <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
+                    <div class="px-1 pb-2 text-xs font-extrabold text-gray-400 tracking-wider uppercase">PILIH KATEGORI
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <button onclick="selectOption('dropdown-kategori', 'Halaman')"
+                            class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800 active-option">
+                            <span>Halaman</span>
+                            <svg class="check-icon w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+
+                        <button onclick="selectOption('dropdown-kategori', 'Jilid')"
+                            class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800">
+                            <span>Jilid</span>
+                            <svg class="check-icon w-5 h-5 text-indigo-600 hidden" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
-    
+
             <!-- Dropdown 3: Waktu -->
-            <div class="relative custom-dropdown" id="dropdown-waktu">
+            <div class="custom-dropdown" id="dropdown-waktu">
                 <button type="button" onclick="toggleDropdown('dropdown-waktu')"
                     class="w-full bg-gray-100 hover:bg-gray-200/80 text-gray-900 font-bold text-xs sm:text-sm rounded-xl p-3 flex items-center justify-between transition-all outline-none">
                     <span class="selected-text truncate">Pagi</span>
-                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor" stroke-width="2.5"
-                        viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor"
+                        stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-    
+
                 <div
-                    class="dropdown-menu hidden absolute bottom-full mb-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-1.5 z-50 space-y-1">
-                    <div class="px-3 py-1.5 text-[10px] font-bold text-gray-400 tracking-wider uppercase">PILIH SESI</div>
-    
-                    <button onclick="selectOption('dropdown-waktu', 'Pagi')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800 active-option">
-                        <span>Pagi</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="3"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
-    
-                    <button onclick="selectOption('dropdown-waktu', 'Siang')"
-                        class="option-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left text-xs sm:text-sm font-semibold text-gray-800">
-                        <span>Siang</span>
-                        <svg class="check-icon w-4 h-4 text-indigo-600 hidden" fill="none" stroke="currentColor"
-                            stroke-width="3" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </button>
+                    class="dropdown-menu hidden fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-3xl shadow-2xl border-t border-gray-100 p-5 z-[60] space-y-2 max-w-md mx-auto">
+                    <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
+                    <div class="px-1 pb-2 text-xs font-extrabold text-gray-400 tracking-wider uppercase">PILIH WAKTU
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <button onclick="selectOption('dropdown-waktu', 'Pagi')"
+                            class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800 active-option">
+                            <span>Pagi</span>
+                            <svg class="check-icon w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+
+                        <button onclick="selectOption('dropdown-waktu', 'Siang')"
+                            class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800">
+                            <span>Siang</span>
+                            <svg class="check-icon w-5 h-5 text-indigo-600 hidden" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
-    
+
         </div>
     </div>
 
