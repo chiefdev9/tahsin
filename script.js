@@ -36,8 +36,6 @@ const muridList = [
   { no: 25, nama: "Syaima Salsabila Aristya Maulana", jk: "P", halaman: "192" },
 ];
 
-
-
 /*
 FUNGSI INI MEMBUAT NAMA DAPAT TERBACA PENUH
 DAN DAPAT DIKEMBALIKAN MENJADI LEBIH SINGKAT
@@ -56,55 +54,53 @@ function renderTable() {
         : "bg-blue-100 text-blue-700";
 
       return `
-            <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all relative">
+            <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
                 <div class="font-medium text-gray-500">${item.no}</div>
                 
-                <!-- Pembungkus elemen nama dengan event onclick -->
+                <!-- Nama Murid -->
                 <div 
                   onclick="toggleName(this)" 
-                  class="text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-200"
-                  title="Klik untuk melihat nama lengkap"
+                  class="name-col text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-150"
+                  title="Klik untuk lihat nama lengkap"
                 >
                   ${item.nama}
                 </div>
 
-                <div>
+                <!-- Kolom JK -->
+                <div class="extra-col">
                     <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
                 </div>
-                <div class="bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">${item.halaman}</div>
+
+                <!-- Kolom Halaman -->
+                <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">
+                  ${item.halaman}
+                </div>
             </div>
         `;
     })
     .join("");
 }
 
-// Fungsi untuk melebarkan nama dan menutupi kolom JK & Halaman saat diklik
+// Fungsi toggle untuk menyembunyikan kolom ekstra saat nama meluas
 function toggleName(element) {
-  // Mengecek apakah nama sedang dalam kondisi terpotong (truncate)
+  const row = element.parentElement; // Mengambil elemen baris induk (.grid)
+  const extraCols = row.querySelectorAll(".extra-col"); // Mengambil elemen JK & Halaman
   const isTruncated = element.classList.contains("truncate");
 
   if (isTruncated) {
-    // Hilangkan pemotongan (...) dan lebarkan menutupi 3 kolom ke kanan
+    // 1. Sembunyikan elemen JK dan Halaman
+    extraCols.forEach((col) => col.classList.add("hidden"));
+
+    // 2. Ubah kolom nama agar mengambil sisa ruang grid
     element.classList.remove("truncate");
-    element.classList.add(
-      "col-span-3",
-      "bg-white",
-      "z-10",
-      "shadow-sm",
-      "rounded",
-      "py-1",
-    );
+    element.classList.add("col-span-3", "whitespace-normal", "break-words");
   } else {
-    // Kembalikan ke tampilan semula (terpotong 58%)
+    // 1. Tampilkan kembali elemen JK dan Halaman
+    extraCols.forEach((col) => col.classList.remove("hidden"));
+
+    // 2. Kembalikan kolom nama ke mode potong (58%)
     element.classList.add("truncate");
-    element.classList.remove(
-      "col-span-3",
-      "bg-white",
-      "z-10",
-      "shadow-sm",
-      "rounded",
-      "py-1",
-    );
+    element.classList.remove("col-span-3", "whitespace-normal", "break-words");
   }
 }
 
