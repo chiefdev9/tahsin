@@ -2,9 +2,10 @@
 <html lang="id">
 
 <!--
-    DESIGN INI KOLOM JK BERDIRI SENDIRI (JADI KOLOM)
--->
+    DIPERBAIKI GEMINI DALAM PENULISAN SINTAX KARENA KURANG DIV PENUTUP DAN TIDAK KONSISTEN
+    LEBAR KOLOM HEADER DENGAN TABEL DATA
 
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,11 +19,12 @@
     <!-- Container Utama -->
     <div class="max-w-md mx-auto bg-white shadow-md mb-20 border border-gray-200">
 
-        <!-- Header Tabel -->
+        <!-- Header Tabel (Diperbaiki grid & ditambahkan kolom JK) -->
         <div
-            class="sticky top-0 z-10 grid grid-cols-[10%_70%_20%] bg-indigo-600 text-white font-semibold text-sm py-3 px-2 text-center items-center">
+            class="sticky top-0 z-10 grid grid-cols-[7%_58%_13%_22%] bg-indigo-600 text-white font-semibold text-sm py-3 px-2 text-center items-center">
             <div>No</div>
             <div class="text-left px-2">Daftar Murid</div>
+            <div>JK</div>
             <div>Halaman</div>
         </div>
 
@@ -34,8 +36,7 @@
                 class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-colors">
                 <div class="font-medium text-gray-500">1</div>
                 <div class="text-left px-2 font-medium text-gray-900 truncate">Farhah Nafs Al Muthmainnah Hafizhah
-                    Zulkifli
-                </div>
+                    Zulkifli</div>
                 <div>
                     <span
                         class="bg-pink-100 text-pink-700 font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">P</span>
@@ -332,67 +333,63 @@
             </div>
 
         </div>
+    </div>
 
-        <!-- Sticky Bottom Navigation Bar -->
-        <div
-            class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-lg z-50">
-            <!-- Menggunakan grid-cols-3 agar 3 dropdown otomatis terbagi rata 33.33% -->
-            <div class="max-w-md mx-auto grid grid-cols-3 gap-2 sm:gap-3">
+    <!-- Sticky Bottom Navigation Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-lg z-50">
+        <div class="max-w-md mx-auto grid grid-cols-3 gap-2 sm:gap-3">
 
-                <!-- Dropdown 1: Anggota -->
-                <div class="relative">
-                    <select
-                        class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs sm:text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2 sm:p-2.5 pr-6 sm:pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100 truncate">
-                        <option value="" disabled>Pilih Asatidz/Asatidzah</option>
-                        <option value="syukron" selected>Syukron</option>
-                        <option value="arka">Arka</option>
-                        <option value="rezka">Rezka</option>
-                    </select>
-                    <div
-                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2.5 text-gray-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
-                        </svg>
-                    </div>
+            <!-- Dropdown 1: Anggota -->
+            <div class="relative">
+                <select
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs sm:text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2 sm:p-2.5 pr-6 sm:pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100 truncate">
+                    <option value="" disabled>Pilih Asatidz/Asatidzah</option>
+                    <option value="syukron" selected>Syukron</option>
+                    <option value="arka">Arka</option>
+                    <option value="rezka">Rezka</option>
+                </select>
+                <div
+                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2.5 text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </div>
-
-                <!-- Dropdown 2: Kategori -->
-                <div class="relative">
-                    <select
-                        class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs sm:text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2 sm:p-2.5 pr-6 sm:pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100 truncate">
-                        <option value="" disabled>Pilih Kategori</option>
-                        <option value="halaman" selected>Halaman</option>
-                        <option value="jilid">Jilid</option>
-                        <option value="kelas">Kelas</option>
-                    </select>
-                    <div
-                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2.5 text-gray-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-
-                <!-- Dropdown 3: Waktu -->
-                <div class="relative">
-                    <select
-                        class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs sm:text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2 sm:p-2.5 pr-6 sm:pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100 truncate">
-                        <option value="pagi" selected>Pagi</option>
-                        <option value="siang">Siang</option>
-                    </select>
-                    <div
-                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2.5 text-gray-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-
             </div>
+
+            <!-- Dropdown 2: Kategori -->
+            <div class="relative">
+                <select
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs sm:text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2 sm:p-2.5 pr-6 sm:pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100 truncate">
+                    <option value="" disabled>Pilih Kategori</option>
+                    <option value="halaman" selected>Halaman</option>
+                    <option value="jilid">Jilid</option>
+                    <option value="kelas">Kelas</option>
+                </select>
+                <div
+                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2.5 text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Dropdown 3: Waktu -->
+            <div class="relative">
+                <select
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs sm:text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2 sm:p-2.5 pr-6 sm:pr-8 appearance-none font-medium cursor-pointer transition-all hover:bg-gray-100 truncate">
+                    <option value="pagi" selected>Pagi</option>
+                    <option value="siang">Siang</option>
+                </select>
+                <div
+                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 sm:px-2.5 text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+
         </div>
+    </div>
 
 </body>
 
