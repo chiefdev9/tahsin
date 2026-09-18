@@ -105,3 +105,55 @@ function toggleName(element) {
 }
 
 document.addEventListener("DOMContentLoaded", renderTable);
+
+// Buka / Tutup Menu Dropdown
+function toggleDropdown(dropdownId) {
+  const targetDropdown = document.getElementById(dropdownId);
+  const targetMenu = targetDropdown.querySelector('.dropdown-menu');
+  const isHidden = targetMenu.classList.contains('hidden');
+
+  // Tutup semua dropdown lain yang sedang terbuka
+  document.querySelectorAll('.dropdown-menu').forEach(menu => {
+    menu.classList.add('hidden');
+  });
+
+  // Jika sebelumnya tertutup, buka menu yang diklik
+  if (isHidden) {
+    targetMenu.classList.remove('hidden');
+  }
+}
+
+// Pilih Opsi & Perbarui Ikon Ceklis
+function selectOption(dropdownId, value) {
+  const dropdown = document.getElementById(dropdownId);
+  
+  // Update teks tombol utama
+  dropdown.querySelector('.selected-text').innerText = value;
+
+  // Atur ulang status aktif dan ikon ceklis di daftar pilihan
+  const options = dropdown.querySelectorAll('.option-btn');
+  options.forEach(btn => {
+    const textSpan = btn.querySelector('span').innerText;
+    const checkIcon = btn.querySelector('.check-icon');
+
+    if (textSpan === value) {
+      checkIcon.classList.remove('hidden'); // Tampilkan ceklis
+      btn.classList.add('bg-gray-50', 'text-indigo-600');
+    } else {
+      checkIcon.classList.add('hidden'); // Sembunyikan ceklis
+      btn.classList.remove('bg-gray-50', 'text-indigo-600');
+    }
+  });
+
+  // Tutup menu setelah memilih
+  dropdown.querySelector('.dropdown-menu').classList.add('hidden');
+}
+
+// Tutup dropdown otomatis jika pengguna mengklik area luar menu
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.custom-dropdown')) {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      menu.classList.add('hidden');
+    });
+  }
+});
