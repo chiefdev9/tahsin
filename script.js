@@ -25,7 +25,6 @@ function cleanNamaGuru(nama) {
     .trim();
 }
 
-// Parsing CSV presisi menangani tanda kutip & koma di dalam teks
 function parseCSV(csvText) {
   const lines = [];
   let row = [];
@@ -68,7 +67,6 @@ function parseCSV(csvText) {
 
   if (lines.length < 2) return [];
 
-  // Baris Header
   const headers = lines[0].map((h) => h.toLowerCase());
 
   let idxNama = headers.findIndex((h) => h.includes("nama"));
@@ -91,7 +89,6 @@ function parseCSV(csvText) {
 
     let obj = {};
 
-    // Data diambil utuh
     obj["nama"] = rowData[idxNama] || "";
     obj["jk"] = rowData[idxJK] || "-";
     obj["kelas"] = idxKelas !== -1 ? rowData[idxKelas] : "-";
@@ -112,7 +109,6 @@ function parseCSV(csvText) {
   return data;
 }
 
-// Fetch Data CSV
 async function loadDataFromCSV() {
   const container = document.getElementById("table-body");
   if (container) {
@@ -145,7 +141,21 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. RENDER TABEL (MEMBERSIHKAN BADGE/WARNA)
+// 3. LOGIKA AKORDION/KLIK NAMA MURID
+// ==========================================
+function toggleExpandNama(element) {
+  const isTruncated = element.classList.contains("truncate");
+  if (isTruncated) {
+    element.classList.remove("truncate", "whitespace-nowrap");
+    element.classList.add("whitespace-normal", "break-words");
+  } else {
+    element.classList.remove("whitespace-normal", "break-words");
+    element.classList.add("truncate", "whitespace-nowrap");
+  }
+}
+
+// ==========================================
+// 4. RENDER TABEL
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
@@ -183,7 +193,11 @@ function renderTable() {
     });
   }
 
-  // 3. Render Baris Tabel (Tanpa Background/Badge Warna)
+  // 3. Cek alignment nilai kategori (Halaman = Center, Lainnya = Left)
+  const isHalaman = keyKategori === "halaman";
+  const alignKategoriClass = isHalaman ? "text-center px-1" : "text-left px-2";
+
+  // 4. Render Baris Tabel
   container.innerHTML = filteredData
     .map((item, index) => {
       const nilaiKategori = item[keyKategori] || "-";
@@ -193,18 +207,21 @@ function renderTable() {
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid (Maksimal 2 Baris) -->
-            <div class="text-left px-1 font-semibold text-gray-800 leading-snug line-clamp-2">
+            <!-- Nama Murid (Mutlak 1 baris saat pertama render + Bisa diklik) -->
+            <div 
+              onclick="toggleExpandNama(this)" 
+              title="Klik untuk melihat nama lengkap"
+              class="text-left px-1 font-semibold text-gray-800 text-xs truncate whitespace-nowrap cursor-pointer hover:text-indigo-600 transition-colors">
               ${item.nama}
             </div>
 
-            <!-- Kolom JK (Teks Polos Rapi Tanpa Badge) -->
+            <!-- Kolom JK -->
             <div class="font-bold text-gray-600 text-xs">
               ${item.jk}
             </div>
 
-            <!-- Kolom Kategori (Rata Kiri, Polos Tanpa Badge Warna, Terbaca Sempurna) -->
-            <div class="text-left px-2 font-semibold text-gray-700 text-xs whitespace-normal break-words">
+            <!-- Kolom Nilai Kategori (Halaman: Rata Tengah, Kelas/Jilid: Rata Kiri) -->
+            <div class="${alignKategoriClass} font-semibold text-gray-700 text-xs whitespace-normal break-words">
               ${nilaiKategori}
             </div>
         </div>
@@ -214,12 +231,14 @@ function renderTable() {
 }
 
 // ==========================================
-// 4. UPDATE HEADER & UI
+// 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
+    // Mutlak Rata Tengah untuk Header Kategori
+    headerElem.className = "text-center font-semibold";
   }
 }
 
@@ -233,7 +252,7 @@ function updateUI() {
 }
 
 // ==========================================
-// 5. KONTROL DROPDOWN & OVERLAY
+// 6. KONTROL DROPDOWN & OVERLAY
 // ==========================================
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
@@ -325,6 +344,6 @@ function updateDropdownTextAndCheckmarks(dropdownId, value) {
 }
 
 // ==========================================
-// 6. INISIALISASI UTAMA
+// 7. INISIALISASI UTAMA
 // ==========================================
 document.addEventListener("DOMContentLoaded", loadDataFromCSV);
