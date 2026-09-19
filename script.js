@@ -325,7 +325,17 @@ document.addEventListener("DOMContentLoaded", renderTable);
 FUNGSI MENU BAR DIBAWAH
 DISESUAIKAN DENGAN GURU SMALA
 */
-// 1. Buka / Tutup Dropdown
+const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
+
+let filterState = {
+  guru: "Vera",
+  kategori: "Halaman",
+  sesi: "Pagi",
+};
+
+// ==========================================
+// 2. KONTROL DROPDOWN & OVERLAY
+// ==========================================
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
   if (!targetDropdown) return;
@@ -336,18 +346,14 @@ function toggleDropdown(dropdownId) {
   if (!targetMenu) return;
 
   const isHidden = targetMenu.classList.contains("hidden");
-
-  // Tutup menu lain yang sedang terbuka
   closeAllDropdowns();
 
-  // Tampilkan jika sebelumnya tersembunyi
   if (isHidden) {
     targetMenu.classList.remove("hidden");
     if (backdrop) backdrop.classList.remove("hidden");
   }
 }
 
-// 2. Tutup Semua Menu & Overlay Backdrop
 function closeAllDropdowns() {
   document.querySelectorAll(".dropdown-menu").forEach((menu) => {
     menu.classList.add("hidden");
@@ -359,18 +365,58 @@ function closeAllDropdowns() {
   }
 }
 
-// 3. Update Pilihan & Indikator Ceklis
+// ==========================================
+// 3. PILIHAN DROPDOWN & LOGIKA DISABLE
+// ==========================================
 function selectOption(dropdownId, value) {
+  if (dropdownId === "dropdown-guru") filterState.guru = value;
+  if (dropdownId === "dropdown-kategori") filterState.kategori = value;
+  if (dropdownId === "dropdown-waktu") filterState.sesi = value;
+
+  // Jika guru khusus pagi dipilih, paksa sesi berpindah ke Pagi
+  if (GURU_KHUSUS_PAGI.includes(filterState.guru)) {
+    filterState.sesi = "Pagi";
+  }
+
+  updateUI();
+  closeAllDropdowns();
+}
+
+function updateSesiDisableState() {
+  const isPagiOnly = GURU_KHUSUS_PAGI.includes(filterState.guru);
+  const dropdownWaktu = document.getElementById("dropdown-waktu");
+  if (!dropdownWaktu) return;
+
+  const buttons = dropdownWaktu.querySelectorAll(".option-btn");
+  buttons.forEach((btn) => {
+    const textSpan = btn.querySelector("span");
+    if (textSpan && textSpan.innerText.trim() === "Siang") {
+      if (isPagiOnly) {
+        btn.disabled = true;
+        btn.classList.add(
+          "opacity-40",
+          "cursor-not-allowed",
+          "pointer-events-none",
+        );
+      } else {
+        btn.disabled = false;
+        btn.classList.remove(
+          "opacity-40",
+          "cursor-not-allowed",
+          "pointer-events-none",
+        );
+      }
+    }
+  });
+}
+
+function updateDropdownTextAndCheckmarks(dropdownId, value) {
   const dropdown = document.getElementById(dropdownId);
   if (!dropdown) return;
 
-  // Perbarui Teks Tombol Utama
   const selectedText = dropdown.querySelector(".selected-text");
-  if (selectedText) {
-    selectedText.innerText = value;
-  }
+  if (selectedText) selectedText.innerText = value;
 
-  // Perbarui Tanda Ceklis
   const options = dropdown.querySelectorAll(".option-btn");
   options.forEach((btn) => {
     const textSpan = btn.querySelector("span");
@@ -384,6 +430,64 @@ function selectOption(dropdownId, value) {
       btn.classList.remove("bg-indigo-50/80", "text-indigo-600");
     }
   });
-
-  closeAllDropdowns();
 }
+
+// ==========================================
+// 4. RENDER DOM TABEL DATA
+// ==========================================
+function renderTable() {
+  const tableBody = document.getElementById("table-body");
+  if (!tableBody) return;
+
+  // Filter murid berdasarkan guru dan sesi aktif
+  const filteredData = muridList.filter((m) => {
+    return m.guru === filterState.guru && m.sesi === filterState.sesi;
+  });
+
+  if (filteredData.length === 0) {
+    tableBody.innerHTML = `
+      <div class="p-8 text-center text-gray-400 font-medium">
+        Tidak ada data murid untuk <br><strong>${filterState.guru}</strong> (Sesi ${filterState.sesi})
+      </div>
+    `;
+    return;
+  }
+
+  // Render baris murid yang lolos filter
+  tableBody.innerHTML = filteredData
+    .map((m, index) => {
+      const isEven = index % 2 === 1;
+      const bgClass = isEven ? "bg-gray-50/60" : "bg-white";
+
+      return `
+      <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center ${bgClass} hover:bg-indigo-50/40 transition-colors">
+        <div class="font-medium text-gray-500">${index + 1}</div>
+        <div class="text-left px-2 font-semibold text-gray-800 truncate">${m.nama}</div>
+        <div>
+          <span class="inline-block px-2 py-0.5 text-xs font-bold rounded-md ${
+            m.jk === "L"
+              ? "bg-blue-100 text-blue-700"
+              : "bg-pink-100 text-pink-700"
+          }">
+            ${m.jk}
+          </span>
+        </div>
+        <div class="font-bold text-indigo-600">${m.halaman}</div>
+      </div>
+    `;
+    })
+    .join("");
+}
+
+function updateUI() {
+  updateSesiDisableState();
+  updateDropdownTextAndCheckmarks("dropdown-guru", filterState.guru);
+  updateDropdownTextAndCheckmarks("dropdown-kategori", filterState.kategori);
+  updateDropdownTextAndCheckmarks("dropdown-waktu", filterState.sesi);
+  renderTable();
+}
+
+// Inisialisasi saat pertama kali halaman dimuat
+document.addEventListener("DOMContentLoaded", () => {
+  updateUI();
+});
