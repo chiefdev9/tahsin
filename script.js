@@ -1,260 +1,12 @@
-const muridList = [
-  {
-    no: 1,
-    nama: "Farhah Nafs Al Muthmainnah Hafizhah Zulkifli",
-    jk: "P",
-    halaman: "Evaluasi",
-    guru: "Yani",
-    jilid: "JILID 2A",
-    sesi: "Pagi",
-    kelas: "P1 MECCA",
-  },
-  {
-    no: 2,
-    nama: "Arkana Xavier Iniesta Al Ayyubi",
-    jk: "L",
-    halaman: "Ev",
-    guru: "Fahmi",
-    jilid: "JUZ 27",
-    sesi: "Siang",
-    kelas: "P4 ISTANBUL",
-  },
-  {
-    no: 3,
-    nama: "Muhammad Ryu Shaquile Dzakiandra",
-    jk: "L",
-    halaman: "88",
-    guru: "Tris",
-    jilid: "AL-QUR'AN",
-    sesi: "Pagi",
-    kelas: "P2 ALEXANDRIA",
-  },
-  {
-    no: 4,
-    nama: "Raden Aisyah Pramadia",
-    jk: "P",
-    halaman: "05",
-    guru: "Nining",
-    jilid: "JILID 1A",
-    sesi: "Siang",
-    kelas: "P5 DAMASCUS",
-  },
-  {
-    no: 5,
-    nama: "Raffasya Nazril Oktavian Musyaffa",
-    jk: "L",
-    halaman: "18",
-    guru: "Retno",
-    jilid: "JILID 3B",
-    sesi: "Pagi",
-    kelas: "P3 CORDOBA",
-  },
-  {
-    no: 6,
-    nama: "Athallah Musyaffa Rasya Adhitya",
-    jk: "L",
-    halaman: "27",
-    guru: "Yoga",
-    jilid: "TAJWID",
-    sesi: "Siang",
-    kelas: "P6 MARRAKECH",
-  },
-  {
-    no: 7,
-    nama: "Arfasyarique Anargya Radeya",
-    jk: "L",
-    halaman: "34",
-    guru: "Vera",
-    jilid: "GHARIB",
-    sesi: "Pagi",
-    kelas: "P1 MEDINA",
-  },
-  {
-    no: 8,
-    nama: "Chinquita Ilmirany Shayma Rusmalan",
-    jk: "P",
-    halaman: "42",
-    guru: "Nurlaela",
-    jilid: "JILID 4A",
-    sesi: "Siang",
-    kelas: "P2 CAIRO",
-  },
-  {
-    no: 9,
-    nama: "Mohammad Hanif Ali Ghaisan",
-    jk: "L",
-    halaman: "50",
-    guru: "Syukron",
-    jilid: "TAHFIZ",
-    sesi: "Siang",
-    kelas: "P4 URFA",
-  },
-  {
-    no: 10,
-    nama: "Muhammad Naladipha Sakha Sitorus",
-    jk: "L",
-    halaman: "63",
-    guru: "Yani",
-    jilid: "JILID 2B",
-    sesi: "Pagi",
-    kelas: "P3 GRANADA",
-  },
-  {
-    no: 11,
-    nama: "Arganta Rayhan Khulafa Digdayan",
-    jk: "L",
-    halaman: "71",
-    guru: "Dian",
-    jilid: "FINISHING",
-    sesi: "Siang",
-    kelas: "P5 ALEPPO",
-  },
-  {
-    no: 12,
-    nama: "Mageia Nayaka Kusumadjati",
-    jk: "P",
-    halaman: "79",
-    guru: "Tris",
-    jilid: "JILID 1B",
-    sesi: "Pagi",
-    kelas: "P1 MECCA",
-  },
-  {
-    no: 13,
-    nama: "Fuschia Amira Nurhidayah Putriyudo",
-    jk: "P",
-    halaman: "85",
-    guru: "Fahmi",
-    jilid: "JILID 4B",
-    sesi: "Siang",
-    kelas: "P6 FEZ",
-  },
-  {
-    no: 14,
-    nama: "Achmad Malka Condro Sisworo",
-    jk: "L",
-    halaman: "92",
-    guru: "Retno",
-    jilid: "JUZ 27",
-    sesi: "Pagi",
-    kelas: "P2 ALEXANDRIA",
-  },
-  {
-    no: 15,
-    nama: "Adskhan Muhammad Alrafaeyza",
-    jk: "L",
-    halaman: "104",
-    guru: "Nurlaela",
-    jilid: "AL-QUR'AN",
-    sesi: "Siang",
-    kelas: "P3 CORDOBA",
-  },
-  {
-    no: 16,
-    nama: "Arkaan Alkhawarizmi Dananjaya",
-    jk: "L",
-    halaman: "112",
-    guru: "Yoga",
-    jilid: "JILID 3A",
-    sesi: "Siang",
-    kelas: "P4 ISTANBUL",
-  },
-  {
-    no: 17,
-    nama: "Demitria Shashinajja Nainggolan",
-    jk: "P",
-    halaman: "120",
-    guru: "Yani",
-    jilid: "GHARIB",
-    sesi: "Pagi",
-    kelas: "P1 MEDINA",
-  },
-  {
-    no: 18,
-    nama: "Ganendra Adhyastha Ksatriapraja",
-    jk: "L",
-    halaman: "135",
-    guru: "Syukron",
-    jilid: "TAJWID",
-    sesi: "Siang",
-    kelas: "P5 DAMASCUS",
-  },
-  {
-    no: 19,
-    nama: "Ghaaniyah Rizqah Prabusunu",
-    jk: "P",
-    halaman: "142",
-    guru: "Tris",
-    jilid: "JILID 2A",
-    sesi: "Pagi",
-    kelas: "P3 GRANADA",
-  },
-  {
-    no: 20,
-    nama: "Kenaya Labiqa Maliha Ramadani",
-    jk: "P",
-    halaman: "150",
-    guru: "Vera",
-    jilid: "JILID 1A",
-    sesi: "Siang",
-    kelas: "P6 MARRAKECH",
-  },
-  {
-    no: 21,
-    nama: "Muhammad Adrian Alfan Rafisqi",
-    jk: "L",
-    halaman: "158",
-    guru: "Retno",
-    jilid: "FINISHING",
-    sesi: "Pagi",
-    kelas: "P2 CAIRO",
-  },
-  {
-    no: 22,
-    nama: "Muhammad Arsya Raihan",
-    jk: "L",
-    halaman: "164",
-    guru: "Dian",
-    jilid: "JILID 4B",
-    sesi: "Siang",
-    kelas: "P4 URFA",
-  },
-  {
-    no: 23,
-    nama: "Muhammad Danish Athallah Dipa",
-    jk: "L",
-    halaman: "171",
-    guru: "Nining",
-    jilid: "TAHFIZ",
-    sesi: "Pagi",
-    kelas: "P1 MECCA",
-  },
-  {
-    no: 24,
-    nama: "Ramadhan Sakti Patra Kurniawan",
-    jk: "L",
-    halaman: "180",
-    guru: "Fahmi",
-    jilid: "AL-QUR'AN",
-    sesi: "Siang",
-    kelas: "P5 ALEPPO",
-  },
-  {
-    no: 25,
-    nama: "Syaima Salsabila Aristya Maulana",
-    jk: "P",
-    halaman: "192",
-    guru: "Tris",
-    jilid: "JILID 3B",
-    sesi: "Pagi",
-    kelas: "P2 ALEXANDRIA",
-  },
-];
+// ==========================================
+// 1. URL CSV & STATE FILTER
+// ==========================================
+const CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRlkxd8dmQkdKm720azA9vog-nI06aVC8AX-c0gKMZx7Q2XBIbO31C4em-DKsSj7GdqtluPVfRYp4Gk/pub?gid=1481426139&single=true&output=csv";
 
-// ==========================================
-// 1. STATE FILTER & KONSTANTA
-// ==========================================
 const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
+
+let muridList = []; // Array data akan diisi dari CSV
 
 let filterState = {
   guru: "Vera",
@@ -263,7 +15,94 @@ let filterState = {
 };
 
 // ==========================================
-// 2. LOGIKA TOGGLE NAMA
+// 2. PARSER & FETCH CSV
+// ==========================================
+
+// Fungsi pembersih kata Ustaz / Ustazah
+function cleanNamaGuru(nama) {
+  if (!nama) return "";
+  return nama
+    .replace(/\b(ustaz|ustazah|ustadz|ustadzah|ust|ustz)\b/gi, "")
+    .trim();
+}
+
+// Fungsi parsing data CSV ke Array of Objects
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) return [];
+
+  // Ambil header baris pertama
+  const headers = lines[0]
+    .split(",")
+    .map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+
+  // Cari posisi index Kolom "Guru Saat Ini" (Kolom K = Index 10)
+  let idxGuruSaatIni = headers.findIndex((h) => h.includes("guru saat ini"));
+  if (idxGuruSaatIni === -1) idxGuruSaatIni = 10;
+
+  const data = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+
+    // Split baris CSV dengan memperhitungkan tanda kutip
+    const row =
+      lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
+    const cleanedRow = row.map((val) => val.trim().replace(/^"|"$/g, ""));
+
+    let obj = {};
+    headers.forEach((header, index) => {
+      let val = cleanedRow[index] || "";
+      if (header === "no") val = parseInt(val, 10) || i;
+      obj[header] = val;
+    });
+
+    // Ambil nilai khusus dari Kolom K ("Guru Saat Ini")
+    const rawGuru =
+      cleanedRow[idxGuruSaatIni] || obj["guru saat ini"] || obj["guru"] || "";
+
+    // Bersihkan gelar "Ustaz/Ustazah" lalu simpan ke properti 'guru'
+    obj["guru"] = cleanNamaGuru(rawGuru);
+
+    data.push(obj);
+  }
+  return data;
+}
+
+// Fungsi Fetch Data dari Link Google Sheets
+async function loadDataFromCSV() {
+  const container = document.getElementById("table-body");
+  if (container) {
+    container.innerHTML = `
+      <div class="p-8 text-center text-gray-400 font-medium">
+        Memuat data murid...
+      </div>
+    `;
+  }
+
+  try {
+    const response = await fetch(CSV_URL);
+    if (!response.ok)
+      throw new Error("Gagal mengambil data dari Google Sheets");
+
+    const csvText = await response.text();
+    muridList = parseCSV(csvText);
+
+    // Update UI setelah data berhasil dimuat
+    updateUI();
+  } catch (error) {
+    console.error("Error loading CSV:", error);
+    if (container) {
+      container.innerHTML = `
+        <div class="p-8 text-center text-red-500 font-medium">
+          Gagal memuat data murid. Silakan periksa koneksi internet atau link CSV.
+        </div>
+      `;
+    }
+  }
+}
+
+// ==========================================
+// 3. LOGIKA TOGGLE NAMA
 // ==========================================
 function toggleName(element) {
   const row = element.parentElement;
@@ -286,15 +125,18 @@ function toggleName(element) {
 }
 
 // ==========================================
-// 3. RENDER TABEL (DINAMISsesuai KATEGORI)
+// 4. RENDER TABEL (DINAMIS SESUAI KATEGORI)
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
 
-  // Filter murid berdasarkan guru dan sesi yang aktif
+  // Filter murid berdasarkan guru (dari Kolom K) dan sesi aktif
   const filteredData = muridList.filter((item) => {
-    return item.guru === filterState.guru && item.sesi === filterState.sesi;
+    return (
+      item.guru?.toLowerCase() === filterState.guru.toLowerCase() &&
+      item.sesi?.toLowerCase() === filterState.sesi.toLowerCase()
+    );
   });
 
   if (filteredData.length === 0) {
@@ -306,17 +148,16 @@ function renderTable() {
     return;
   }
 
-  // Tentukan property mana yang diambil dari objek ("halaman", "jilid", atau "kelas")
+  // Ambil property sesuai filter kategori yang dipilih ("halaman", "jilid", atau "kelas")
   const keyKategori = filterState.kategori.toLowerCase();
 
   container.innerHTML = filteredData
     .map((item, index) => {
-      const isFemale = item.jk === "P";
+      const isFemale = item.jk?.toUpperCase() === "P";
       const badgeStyle = isFemale
         ? "bg-pink-100 text-pink-700"
         : "bg-blue-100 text-blue-700";
 
-      // Mengambil nilai property sesuai filter yang dipilih
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
@@ -331,7 +172,7 @@ function renderTable() {
               ${item.nama}
             </div>
 
-            <!-- Kolom JK (Tetap Paten) -->
+            <!-- Kolom JK -->
             <div class="extra-col">
                 <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
             </div>
@@ -347,12 +188,11 @@ function renderTable() {
 }
 
 // ==========================================
-// 4. UPDATE HEADER & UI
+// 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
-    // Ubah judul header tabel sesuai filter kategori aktif
     headerElem.innerText = filterState.kategori;
   }
 }
@@ -367,7 +207,7 @@ function updateUI() {
 }
 
 // ==========================================
-// 5. KONTROL DROPDOWN & OVERLAY
+// 6. KONTROL DROPDOWN & OVERLAY
 // ==========================================
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
@@ -459,6 +299,6 @@ function updateDropdownTextAndCheckmarks(dropdownId, value) {
 }
 
 // ==========================================
-// 6. INISIALISASI UTAMA
+// 7. INISIALISASI UTAMA
 // ==========================================
-document.addEventListener("DOMContentLoaded", updateUI);
+document.addEventListener("DOMContentLoaded", loadDataFromCSV);
