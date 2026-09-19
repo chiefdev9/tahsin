@@ -6,7 +6,7 @@ const CSV_URL =
 
 const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
 
-let muridList = []; // Array data akan diisi dari CSV
+let muridList = []; // Data dari CSV Google Sheets
 
 let filterState = {
   guru: "Vera",
@@ -15,7 +15,7 @@ let filterState = {
 };
 
 // ==========================================
-// 2. PARSER & FETCH CSV
+// 2. PARSER CSV & FETCH DATA
 // ==========================================
 
 // Fungsi pembersih kata Ustaz / Ustazah
@@ -26,62 +26,61 @@ function cleanNamaGuru(nama) {
     .trim();
 }
 
-// Fungsi parsing data CSV ke Array of Objects
+// Parsing CSV: Membaca baris pertama sebagai Key Objek
 function parseCSV(text) {
   const lines = text.trim().split("\n");
   if (lines.length < 2) return [];
 
-  // Ambil header baris pertama
+  // Baris pertama CSV langsung dijadikan array KEY / Header
   const headers = lines[0]
     .split(",")
     .map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
 
-  // Cari index posisi kolom khusus
-  let idxNama = headers.findIndex((h) => h.includes("nama"));
-  if (idxNama === -1) idxNama = 1; // Fallback ke Kolom B (Index 1)
-
-  let idxGuruSaatIni = headers.findIndex((h) => h.includes("guru saat ini"));
-  if (idxGuruSaatIni === -1) idxGuruSaatIni = 10; // Fallback ke Kolom K (Index 10)
-
-  let idxKelas = headers.findIndex((h) => h.includes("kelas"));
-
   const data = [];
+
   for (let i = 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
 
-    // Split baris CSV dengan memperhitungkan tanda kutip
+    // Memisah kolom dengan tetap aman jika ada teks di dalam tanda kutip
     const row =
       lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
     const cleanedRow = row.map((val) => val.trim().replace(/^"|"$/g, ""));
 
     let obj = {};
 
-    // Map semua kolom default berdasarkan header
+    // Map setiap kolom langsung ke KEY (Header baris pertama)
     headers.forEach((header, index) => {
       let val = cleanedRow[index] || "";
-      if (header === "no") val = parseInt(val, 10) || i;
       obj[header] = val;
     });
 
-    // 1. Ambil Nama Siswa khusus dari Kolom B (Index 1)
-    obj["nama"] = cleanedRow[idxNama] || obj["nama"] || "";
+    // --- PENYESUAIAN KHUSUS --- //
+    // 1. Map Nama Siswa
+    obj["nama"] = obj["nama siswa"] || obj["nama"] || "";
 
-    // 2. Ambil Kelas utuh beserta sign-nya (misal: "P1 MECCA")
-    if (idxKelas !== -1 && cleanedRow[idxKelas]) {
-      obj["kelas"] = cleanedRow[idxKelas];
-    }
+    // 2. Map Nomor Urut
+    obj["no"] = parseInt(obj["no"], 10) || i;
 
-    // 3. Ambil Guru Saat Ini dari Kolom K (Index 10) & Trim Ustaz/Ustazah
-    const rawGuru =
-      cleanedRow[idxGuruSaatIni] || obj["guru saat ini"] || obj["guru"] || "";
+    // 3. Jilid diambil langsung dari KEY "saat ini"
+    obj["jilid"] = obj["saat ini"] || "-";
+
+    // 4. Guru diambil dari KEY "guru saat ini" dan di-trim Ustaz/Ustazah-nya
+    const rawGuru = obj["guru saat ini"] || obj["guru"] || "";
     obj["guru"] = cleanNamaGuru(rawGuru);
+
+    // 5. Sesi dibuat kapitalisasi standar (Pagi / Siang)
+    if (obj["sesi"]) {
+      obj["sesi"] =
+        obj["sesi"].charAt(0).toUpperCase() +
+        obj["sesi"].slice(1).toLowerCase();
+    }
 
     data.push(obj);
   }
   return data;
 }
 
-// Fungsi Fetch Data dari Link Google Sheets
+// Fungsi Fetch Data dari Google Sheets
 async function loadDataFromCSV() {
   const container = document.getElementById("table-body");
   if (container) {
@@ -100,7 +99,7 @@ async function loadDataFromCSV() {
     const csvText = await response.text();
     muridList = parseCSV(csvText);
 
-    // Update UI setelah data berhasil dimuat
+    // Update UI setelah data siap
     updateUI();
   } catch (error) {
     console.error("Error loading CSV:", error);
@@ -144,7 +143,7 @@ function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
 
-  // Filter murid berdasarkan guru (dari Kolom K) dan sesi aktif
+  // Filter murid berdasarkan guru (dari "Guru Saat Ini") dan sesi aktif
   const filteredData = muridList.filter((item) => {
     return (
       item.guru?.toLowerCase() === filterState.guru.toLowerCase() &&
@@ -161,7 +160,7 @@ function renderTable() {
     return;
   }
 
-  // Ambil property sesuai filter kategori yang dipilih ("halaman", "jilid", atau "kelas")
+  // Tentukan property yang diambil berdasarkan filter kategori ("halaman", "jilid", atau "kelas")
   const keyKategori = filterState.kategori.toLowerCase();
 
   container.innerHTML = filteredData
@@ -190,7 +189,7 @@ function renderTable() {
                 <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
             </div>
 
-            <!-- Kolom Kategori (Dinamis: Halaman/Jilid/Kelas) -->
+            <!-- Kolom Kategori (Halaman / Jilid (dari 'Saat Ini') / Kelas) -->
             <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
               ${nilaiKategori}
             </div>
