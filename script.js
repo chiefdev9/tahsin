@@ -25,7 +25,7 @@ function cleanNamaGuru(nama) {
     .trim();
 }
 
-// Fungsi Parser CSV yang sangat akurat menangani teks berkoma & tanda kutip
+// Parsing CSV presisi menangani tanda kutip & koma di dalam teks
 function parseCSV(csvText) {
   const lines = [];
   let row = [];
@@ -68,15 +68,14 @@ function parseCSV(csvText) {
 
   if (lines.length < 2) return [];
 
-  // Baris 0 sebagai Header
+  // Baris Header
   const headers = lines[0].map((h) => h.toLowerCase());
 
-  // Cari posisi index spesifik
   let idxNama = headers.findIndex((h) => h.includes("nama"));
-  if (idxNama === -1) idxNama = 1; // Default Kolom B
+  if (idxNama === -1) idxNama = 1;
 
   let idxGuru = headers.findIndex((h) => h.includes("guru saat ini"));
-  if (idxGuru === -1) idxGuru = 10; // Default Kolom K
+  if (idxGuru === -1) idxGuru = 10;
 
   let idxKelas = headers.findIndex((h) => h.includes("kelas"));
   let idxSaatIni = headers.findIndex((h) => h.includes("saat ini"));
@@ -92,26 +91,16 @@ function parseCSV(csvText) {
 
     let obj = {};
 
-    // 1. Nama Siswa lengkap 100% tanpa potongan
+    // Data diambil utuh
     obj["nama"] = rowData[idxNama] || "";
-
-    // 2. Jenis Kelamin
     obj["jk"] = rowData[idxJK] || "-";
-
-    // 3. Kelas apa adanya
     obj["kelas"] = idxKelas !== -1 ? rowData[idxKelas] : "-";
-
-    // 4. Jilid dari "Saat Ini" apa adanya
     obj["jilid"] = idxSaatIni !== -1 ? rowData[idxSaatIni] : "-";
-
-    // 5. Halaman
     obj["halaman"] = idxHalaman !== -1 ? rowData[idxHalaman] : "-";
 
-    // 6. Guru Saat Ini
     const rawGuru = idxGuru !== -1 ? rowData[idxGuru] : "";
     obj["guru"] = cleanNamaGuru(rawGuru);
 
-    // 7. Sesi
     const rawSesi = idxSesi !== -1 ? rowData[idxSesi] : "";
     obj["sesi"] = rawSesi
       ? rawSesi.charAt(0).toUpperCase() + rawSesi.slice(1).toLowerCase()
@@ -156,30 +145,7 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. LOGIKA TOGGLE NAMA (OPSIONAL)
-// ==========================================
-function toggleName(element) {
-  const row = element.parentElement;
-  const extraCols = row.querySelectorAll(".extra-col");
-  const isTruncated = element.classList.contains("truncate");
-
-  if (isTruncated) {
-    extraCols.forEach((col) => col.classList.add("hidden"));
-    row.classList.remove("grid-cols-[7%_58%_13%_22%]");
-    row.classList.add("grid-cols-[7%_93%]");
-    element.classList.remove("truncate");
-    element.classList.add("whitespace-normal", "break-words");
-  } else {
-    extraCols.forEach((col) => col.classList.remove("hidden"));
-    row.classList.remove("grid-cols-[7%_93%]");
-    row.classList.add("grid-cols-[7%_58%_13%_22%]");
-    element.classList.add("truncate");
-    element.classList.remove("whitespace-normal", "break-words");
-  }
-}
-
-// ==========================================
-// 4. RENDER TABEL
+// 3. RENDER TABEL (PATEN 2 BARIS)
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
@@ -216,21 +182,18 @@ function renderTable() {
         <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
             <div class="font-medium text-gray-500">${index + 1}</div>
             
-            <!-- Nama murid ditampilkan utuh tanpa dipotong -->
-            <div 
-              onclick="toggleName(this)" 
-              class="name-col text-left px-2 font-medium text-gray-900 whitespace-normal break-words cursor-pointer select-none"
-            >
+            <!-- Nama Murid Paten Maksimal 2 Baris -->
+            <div class="text-left px-2 font-medium text-gray-900 leading-snug line-clamp-2">
               ${item.nama}
             </div>
 
             <!-- Kolom JK -->
-            <div class="extra-col">
+            <div>
                 <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
             </div>
 
-            <!-- Kolom Kategori -->
-            <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
+            <!-- Kolom Kategori (Halaman / Jilid / Kelas) -->
+            <div class="bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
               ${nilaiKategori}
             </div>
         </div>
@@ -240,7 +203,7 @@ function renderTable() {
 }
 
 // ==========================================
-// 5. UPDATE HEADER & UI
+// 4. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
   const headerElem = document.getElementById("header-kategori");
@@ -259,7 +222,7 @@ function updateUI() {
 }
 
 // ==========================================
-// 6. KONTROL DROPDOWN
+// 5. KONTROL DROPDOWN & OVERLAY
 // ==========================================
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
@@ -351,6 +314,6 @@ function updateDropdownTextAndCheckmarks(dropdownId, value) {
 }
 
 // ==========================================
-// 7. INISIALISASI
+// 6. INISIALISASI UTAMA
 // ==========================================
 document.addEventListener("DOMContentLoaded", loadDataFromCSV);
