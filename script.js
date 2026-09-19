@@ -118,7 +118,7 @@ async function loadDataFromCSV() {
   const container = document.getElementById("table-body");
   if (container) {
     container.innerHTML = `
-      <div class="p-8 text-center text-gray-400 font-medium text-xs">
+      <div class="p-8 text-center text-gray-400 font-medium">
         Memuat data murid...
       </div>
     `;
@@ -137,7 +137,7 @@ async function loadDataFromCSV() {
     console.error("Error loading CSV:", error);
     if (container) {
       container.innerHTML = `
-        <div class="p-8 text-center text-red-500 font-medium text-xs">
+        <div class="p-8 text-center text-red-500 font-medium">
           Gagal memuat data murid. Silakan periksa koneksi internet atau link CSV.
         </div>
       `;
@@ -194,7 +194,7 @@ function renderTable() {
 
   if (filteredData.length === 0) {
     container.innerHTML = `
-      <div class="p-8 text-center text-gray-400 font-medium text-xs">
+      <div class="p-8 text-center text-gray-400 font-medium">
         Tidak ada data murid untuk <br><strong>${filterState.guru}</strong> (Sesi ${filterState.sesi})
       </div>
     `;
@@ -215,7 +215,7 @@ function renderTable() {
     });
   }
 
-  // Alignment nilai kategori: Halaman = Center, Kelas/Jilid = Left (Nilai tetap rata kiri)
+  // Alignment nilai kategori: Halaman = Center, Kelas/Jilid = Left
   const isHalaman = keyKategori === "halaman";
   const alignKategoriClass = isHalaman ? "text-center px-1" : "text-left px-2";
 
@@ -228,7 +228,7 @@ function renderTable() {
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid: Teks Proper-case dinaikkan ukurannya ke text-[13px] + Efek Hover warna Header -->
+            <!-- Nama Murid (Proper-case dibuat text-[13px] + Hover Senada Header) -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
@@ -236,12 +236,12 @@ function renderTable() {
               ${item.nama}
             </div>
 
-            <!-- Kolom JK: Ditambah uppercase & diperkecil ke text-[11px] agar seimbang secara visual -->
+            <!-- Kolom JK (Uppercase & Diperkecil ke text-[11px]) -->
             <div class="extra-col font-bold text-gray-600 text-[11px] uppercase">
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori: Ditambah uppercase & diperkecil ke text-[11px], nilai tetap rata kiri -->
+            <!-- Kolom Nilai Kategori (Uppercase & Diperkecil ke text-[11px], Nilai tetap Rata Kiri kecuali Halaman) -->
             <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
               ${nilaiKategori}
             </div>
@@ -255,13 +255,13 @@ function renderTable() {
 // 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
-  // Poin 4: Header "Daftar Murid" diset Rata Tengah
+  // Header Daftar Murid dibuat Rata Tengah
   const headerDaftar = document.getElementById("header-daftar-murid");
   if (headerDaftar) {
     headerDaftar.className = "text-center font-semibold";
   }
 
-  // Header nama kategori diset Rata Tengah
+  // Header Kategori dibuat Rata Tengah
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
