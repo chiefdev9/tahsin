@@ -1,4 +1,9 @@
 // ==========================================
+// DATA TIDAK PUNYA WARNA TAPI FUNGSI NAMA PANJANG DI KLIK TERLIHAT RAPI
+// INI END POINT
+// ==========================================
+
+// ==========================================
 // 1. URL CSV & STATE FILTER
 // ==========================================
 const CSV_URL =
@@ -141,7 +146,7 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. LOGIKA TOGGLE NAMA (1 BARIS MELEBAR MENUTUPI KOLOM SAMPLING)
+// 3. LOGIKA TOGGLE NAMA (1 BARIS TERBACA UTUH MENUTUPI KOLOM SAMPLING)
 // ==========================================
 function toggleName(element) {
   const parentRow = element.closest(".grid");
@@ -153,14 +158,14 @@ function toggleName(element) {
     !element.classList.contains("truncate");
 
   if (!isExpanded) {
-    // Sembunyikan kolom JK & Kategori di baris ini
+    // Sembunyikan kolom JK & Kategori di baris tersebut
     extraCols.forEach((col) => col.classList.add("hidden"));
 
-    // Ubah kolom nama agar mengambil sisa 3 kolom (col-span-3)
+    // Ubah kolom nama agar mengambil sisa 3 kolom (col-span-3) dan dapat di-scroll horizontal jika sangat panjang
     element.classList.remove("truncate");
     element.classList.add("col-span-3", "whitespace-nowrap", "overflow-x-auto");
   } else {
-    // Kembalikan ke tampilan awal
+    // Kembalikan nama ke tampilan terpotong semula
     element.classList.remove(
       "col-span-3",
       "whitespace-nowrap",
@@ -210,7 +215,7 @@ function renderTable() {
     });
   }
 
-  // Alignment Nilai Kategori: Halaman = Rata Tengah, Kelas/Jilid = Rata Kiri
+  // Alignment nilai kategori: Halaman = Center, Kelas/Jilid = Left (Nilai tetap rata kiri)
   const isHalaman = keyKategori === "halaman";
   const alignKategoriClass = isHalaman ? "text-center px-1" : "text-left px-2";
 
@@ -223,20 +228,20 @@ function renderTable() {
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid (Proper-case dibuat sedikit lebih besar: text-[13px] + Hover Senada Header) -->
+            <!-- Nama Murid: Teks Proper-case dinaikkan ukurannya ke text-[13px] + Efek Hover warna Header -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
-              class="name-col text-left px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none transition-all duration-150 hover:text-indigo-600 hover:bg-indigo-50/70 rounded">
+              class="name-col text-left px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none transition-all duration-150 hover:text-indigo-600 hover:bg-indigo-50/80 rounded">
               ${item.nama}
             </div>
 
-            <!-- Kolom JK (Uppercase & Diperkecil: text-[11px] untuk menghemat ruang) -->
+            <!-- Kolom JK: Ditambah uppercase & diperkecil ke text-[11px] agar seimbang secara visual -->
             <div class="extra-col font-bold text-gray-600 text-[11px] uppercase">
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori (Uppercase & Diperkecil: text-[11px], Nilai tetap Rata Kiri kecuali Halaman) -->
+            <!-- Kolom Nilai Kategori: Ditambah uppercase & diperkecil ke text-[11px], nilai tetap rata kiri -->
             <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
               ${nilaiKategori}
             </div>
@@ -250,12 +255,13 @@ function renderTable() {
 // 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
-  // Poin 4: Header Daftar Murid dan Kategori Rata Tengah
+  // Poin 4: Header "Daftar Murid" diset Rata Tengah
   const headerDaftar = document.getElementById("header-daftar-murid");
   if (headerDaftar) {
     headerDaftar.className = "text-center font-semibold";
   }
 
+  // Header nama kategori diset Rata Tengah
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
