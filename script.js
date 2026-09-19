@@ -145,13 +145,14 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. RENDER TABEL (PATEN 2 BARIS)
+// 3. RENDER TABEL (MEMBERSIHKAN BADGE/WARNA)
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
 
-  const filteredData = muridList.filter((item) => {
+  // 1. Filter murid berdasarkan guru & sesi aktif
+  let filteredData = muridList.filter((item) => {
     return (
       item.guru?.toLowerCase() === filterState.guru.toLowerCase() &&
       item.sesi?.toLowerCase() === filterState.sesi.toLowerCase()
@@ -169,31 +170,41 @@ function renderTable() {
 
   const keyKategori = filterState.kategori.toLowerCase();
 
+  // 2. LOGIKA URUTAN A-Z (Hanya saat filter Jilid atau Kelas)
+  if (keyKategori === "jilid" || keyKategori === "kelas") {
+    filteredData = [...filteredData].sort((a, b) => {
+      const valA = (a[keyKategori] || "").toString().trim();
+      const valB = (b[keyKategori] || "").toString().trim();
+
+      return valA.localeCompare(valB, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+    });
+  }
+
+  // 3. Render Baris Tabel (Tanpa Background/Badge Warna)
   container.innerHTML = filteredData
     .map((item, index) => {
-      const isFemale = item.jk?.toUpperCase() === "P";
-      const badgeStyle = isFemale
-        ? "bg-pink-100 text-pink-700"
-        : "bg-blue-100 text-blue-700";
-
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
-        <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
-            <div class="font-medium text-gray-500">${index + 1}</div>
+        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
+            <!-- No -->
+            <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid Paten Maksimal 2 Baris -->
-            <div class="text-left px-2 font-medium text-gray-900 leading-snug line-clamp-2">
+            <!-- Nama Murid (Maksimal 2 Baris) -->
+            <div class="text-left px-1 font-semibold text-gray-800 leading-snug line-clamp-2">
               ${item.nama}
             </div>
 
-            <!-- Kolom JK -->
-            <div>
-                <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
+            <!-- Kolom JK (Teks Polos Rapi Tanpa Badge) -->
+            <div class="font-bold text-gray-600 text-xs">
+              ${item.jk}
             </div>
 
-            <!-- Kolom Kategori (Halaman / Jilid / Kelas) -->
-            <div class="bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
+            <!-- Kolom Kategori (Rata Kiri, Polos Tanpa Badge Warna, Terbaca Sempurna) -->
+            <div class="text-left px-2 font-semibold text-gray-700 text-xs whitespace-normal break-words">
               ${nilaiKategori}
             </div>
         </div>
