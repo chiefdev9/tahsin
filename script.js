@@ -252,7 +252,7 @@ const muridList = [
 ];
 
 // ==========================================
-// 1. STATE FILTER
+// 1. STATE FILTER & KONSTANTA
 // ==========================================
 const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
 
@@ -263,46 +263,36 @@ let filterState = {
 };
 
 // ==========================================
-// 2. LOGIKA TOGGLE NAMA (DIPERBAIKI)
+// 2. LOGIKA TOGGLE NAMA
 // ==========================================
 function toggleName(element) {
-  const row = element.parentElement; // Element induk (.grid)
+  const row = element.parentElement;
   const extraCols = row.querySelectorAll(".extra-col");
   const isTruncated = element.classList.contains("truncate");
 
   if (isTruncated) {
-    // Sembunyikan JK & Halaman
     extraCols.forEach((col) => col.classList.add("hidden"));
-
-    // Ubah pembagian kolom grid induk agar nama mendapat ruang penuh
     row.classList.remove("grid-cols-[7%_58%_13%_22%]");
     row.classList.add("grid-cols-[7%_93%]");
-
-    // Lepas batasan potong teks
     element.classList.remove("truncate");
     element.classList.add("whitespace-normal", "break-words");
   } else {
-    // Tampilkan kembali JK & Halaman
     extraCols.forEach((col) => col.classList.remove("hidden"));
-
-    // Kembalikan pembagian kolom grid awal
     row.classList.remove("grid-cols-[7%_93%]");
     row.classList.add("grid-cols-[7%_58%_13%_22%]");
-
-    // Kembalikan ke mode potong teks
     element.classList.add("truncate");
     element.classList.remove("whitespace-normal", "break-words");
   }
 }
 
 // ==========================================
-// 3. RENDER TABEL
+// 3. RENDER TABEL (DINAMISsesuai KATEGORI)
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
 
-  // Filter murid berdasarkan pilihan aktif
+  // Filter murid berdasarkan guru dan sesi yang aktif
   const filteredData = muridList.filter((item) => {
     return item.guru === filterState.guru && item.sesi === filterState.sesi;
   });
@@ -316,12 +306,18 @@ function renderTable() {
     return;
   }
 
+  // Tentukan property mana yang diambil dari objek ("halaman", "jilid", atau "kelas")
+  const keyKategori = filterState.kategori.toLowerCase();
+
   container.innerHTML = filteredData
     .map((item, index) => {
       const isFemale = item.jk === "P";
       const badgeStyle = isFemale
         ? "bg-pink-100 text-pink-700"
         : "bg-blue-100 text-blue-700";
+
+      // Mengambil nilai property sesuai filter yang dipilih
+      const nilaiKategori = item[keyKategori] || "-";
 
       return `
         <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
@@ -335,12 +331,14 @@ function renderTable() {
               ${item.nama}
             </div>
 
+            <!-- Kolom JK (Tetap Paten) -->
             <div class="extra-col">
                 <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
             </div>
 
-            <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">
-              ${item.halaman}
+            <!-- Kolom Kategori (Dinamis) -->
+            <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
+              ${nilaiKategori}
             </div>
         </div>
       `;
@@ -349,7 +347,27 @@ function renderTable() {
 }
 
 // ==========================================
-// 4. KONTROL DROPDOWN & OVERLAY
+// 4. UPDATE HEADER & UI
+// ==========================================
+function updateHeaderKategori() {
+  const headerElem = document.getElementById("header-kategori");
+  if (headerElem) {
+    // Ubah judul header tabel sesuai filter kategori aktif
+    headerElem.innerText = filterState.kategori;
+  }
+}
+
+function updateUI() {
+  updateSesiDisableState();
+  updateHeaderKategori();
+  updateDropdownTextAndCheckmarks("dropdown-guru", filterState.guru);
+  updateDropdownTextAndCheckmarks("dropdown-kategori", filterState.kategori);
+  updateDropdownTextAndCheckmarks("dropdown-waktu", filterState.sesi);
+  renderTable();
+}
+
+// ==========================================
+// 5. KONTROL DROPDOWN & OVERLAY
 // ==========================================
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
@@ -401,10 +419,18 @@ function updateSesiDisableState() {
     if (textSpan && textSpan.innerText.trim() === "Siang") {
       if (isPagiOnly) {
         btn.disabled = true;
-        btn.classList.add("opacity-40", "cursor-not-allowed", "pointer-events-none");
+        btn.classList.add(
+          "opacity-40",
+          "cursor-not-allowed",
+          "pointer-events-none",
+        );
       } else {
         btn.disabled = false;
-        btn.classList.remove("opacity-40", "cursor-not-allowed", "pointer-events-none");
+        btn.classList.remove(
+          "opacity-40",
+          "cursor-not-allowed",
+          "pointer-events-none",
+        );
       }
     }
   });
@@ -433,14 +459,6 @@ function updateDropdownTextAndCheckmarks(dropdownId, value) {
 }
 
 // ==========================================
-// 5. INISIALISASI UTAMA
+// 6. INISIALISASI UTAMA
 // ==========================================
-function updateUI() {
-  updateSesiDisableState();
-  updateDropdownTextAndCheckmarks("dropdown-guru", filterState.guru);
-  updateDropdownTextAndCheckmarks("dropdown-kategori", filterState.kategori);
-  updateDropdownTextAndCheckmarks("dropdown-waktu", filterState.sesi);
-  renderTable();
-}
-
 document.addEventListener("DOMContentLoaded", updateUI);
