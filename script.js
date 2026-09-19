@@ -141,16 +141,41 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. LOGIKA AKORDION/KLIK NAMA MURID
+// 3. LOGIKA OVERLAY 1 BARIS MENUTUPI KOLOM SAMPLING
 // ==========================================
 function toggleExpandNama(element) {
-  const isTruncated = element.classList.contains("truncate");
-  if (isTruncated) {
-    element.classList.remove("truncate", "whitespace-nowrap");
-    element.classList.add("whitespace-normal", "break-words");
-  } else {
-    element.classList.remove("whitespace-normal", "break-words");
-    element.classList.add("truncate", "whitespace-nowrap");
+  const isExpanded = element.classList.contains("is-expanded");
+
+  // Tutup semua nama lain yang mungkin sedang terbuka
+  document.querySelectorAll(".is-expanded").forEach((el) => {
+    el.classList.remove(
+      "is-expanded",
+      "absolute",
+      "left-[7%]",
+      "right-2",
+      "z-20",
+      "bg-white",
+      "shadow-md",
+      "py-1",
+      "pr-2",
+    );
+    el.classList.add("truncate");
+  });
+
+  if (!isExpanded) {
+    // Buka nama secara memanjang 1 baris di atas JK & Kategori
+    element.classList.remove("truncate");
+    element.classList.add(
+      "is-expanded",
+      "absolute",
+      "left-[7%]",
+      "right-2",
+      "z-20",
+      "bg-white",
+      "shadow-md",
+      "py-1",
+      "pr-2",
+    );
   }
 }
 
@@ -161,7 +186,6 @@ function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
 
-  // 1. Filter murid berdasarkan guru & sesi aktif
   let filteredData = muridList.filter((item) => {
     return (
       item.guru?.toLowerCase() === filterState.guru.toLowerCase() &&
@@ -180,7 +204,6 @@ function renderTable() {
 
   const keyKategori = filterState.kategori.toLowerCase();
 
-  // 2. LOGIKA URUTAN A-Z (Hanya saat filter Jilid atau Kelas)
   if (keyKategori === "jilid" || keyKategori === "kelas") {
     filteredData = [...filteredData].sort((a, b) => {
       const valA = (a[keyKategori] || "").toString().trim();
@@ -193,25 +216,23 @@ function renderTable() {
     });
   }
 
-  // 3. Cek alignment nilai kategori (Halaman = Center, Lainnya = Left)
   const isHalaman = keyKategori === "halaman";
   const alignKategoriClass = isHalaman ? "text-center px-1" : "text-left px-2";
 
-  // 4. Render Baris Tabel
   container.innerHTML = filteredData
     .map((item, index) => {
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
-        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
+        <div class="relative grid grid-cols-[7%_51%_10%_32%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid (Mutlak 1 baris saat pertama render + Bisa diklik) -->
+            <!-- Nama Murid (Overlay 1 Baris saat diklik) -->
             <div 
               onclick="toggleExpandNama(this)" 
-              title="Klik untuk melihat nama lengkap"
-              class="text-left px-1 font-semibold text-gray-800 text-xs truncate whitespace-nowrap cursor-pointer hover:text-indigo-600 transition-colors">
+              title="Klik untuk lihat nama utuh"
+              class="text-left px-1 font-semibold text-gray-800 text-xs truncate whitespace-nowrap cursor-pointer hover:text-indigo-600 transition-all">
               ${item.nama}
             </div>
 
@@ -220,7 +241,7 @@ function renderTable() {
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori (Halaman: Rata Tengah, Kelas/Jilid: Rata Kiri) -->
+            <!-- Kolom Nilai Kategori -->
             <div class="${alignKategoriClass} font-semibold text-gray-700 text-xs whitespace-normal break-words">
               ${nilaiKategori}
             </div>
@@ -237,7 +258,6 @@ function updateHeaderKategori() {
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
-    // Mutlak Rata Tengah untuk Header Kategori
     headerElem.className = "text-center font-semibold";
   }
 }
