@@ -18,7 +18,7 @@ let filterState = {
 // 2. PARSER CSV & FETCH DATA
 // ==========================================
 
-// Fungsi pembersih kata Ustaz / Ustazah
+// Fungsi khusus pembersih gelar Ustaz / Ustazah untuk filter menu
 function cleanNamaGuru(nama) {
   if (!nama) return "";
   return nama
@@ -54,21 +54,25 @@ function parseCSV(text) {
       obj[header] = val;
     });
 
-    // --- PENYESUAIAN KHUSUS --- //
-    // 1. Map Nama Siswa
+    // --- PROSES DATA SESUAI VALUE ASLI CSV --- //
+
+    // 1. Nama Siswa lengkap apa adanya
     obj["nama"] = obj["nama siswa"] || obj["nama"] || "";
 
-    // 2. Map Nomor Urut
+    // 2. Nomor Urut
     obj["no"] = parseInt(obj["no"], 10) || i;
 
-    // 3. Jilid diambil langsung dari KEY "saat ini"
+    // 3. Kelas apa adanya sesuai value dari CSV
+    obj["kelas"] = obj["kelas"] || "-";
+
+    // 4. Jilid diambil apa adanya dari kolom "Saat Ini"
     obj["jilid"] = obj["saat ini"] || "-";
 
-    // 4. Guru diambil dari KEY "guru saat ini" dan di-trim Ustaz/Ustazah-nya
+    // 5. Guru diambil dari "Guru Saat Ini" (hanya membersihkan gelar Ustaz/Ustazah untuk filter)
     const rawGuru = obj["guru saat ini"] || obj["guru"] || "";
     obj["guru"] = cleanNamaGuru(rawGuru);
 
-    // 5. Sesi dibuat kapitalisasi standar (Pagi / Siang)
+    // 6. Sesi untuk filter
     if (obj["sesi"]) {
       obj["sesi"] =
         obj["sesi"].charAt(0).toUpperCase() +
@@ -170,6 +174,7 @@ function renderTable() {
         ? "bg-pink-100 text-pink-700"
         : "bg-blue-100 text-blue-700";
 
+      // Nilai kategori diambil lengkap apa adanya dari CSV
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
@@ -189,7 +194,7 @@ function renderTable() {
                 <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
             </div>
 
-            <!-- Kolom Kategori (Halaman / Jilid (dari 'Saat Ini') / Kelas) -->
+            <!-- Kolom Kategori (Halaman / Jilid / Kelas) -->
             <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
               ${nilaiKategori}
             </div>
