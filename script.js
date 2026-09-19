@@ -251,47 +251,61 @@ const muridList = [
   },
 ];
 
-/*
-FUNGSI INI MEMBUAT NAMA DAPAT TERBACA PENUH
-DAN DAPAT DIKEMBALIKAN MENJADI LEBIH SINGKAT
-*/
-
+// ==========================================
+// RENDER DOM TABEL DATA + FEATURE TOGGLE NAMA
+// ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
-
   if (!container) return;
 
-  container.innerHTML = muridList
-    .map((item) => {
+  // 1. Filter murid berdasarkan guru dan sesi yang sedang aktif
+  const filteredData = muridList.filter((item) => {
+    return item.guru === filterState.guru && item.sesi === filterState.sesi;
+  });
+
+  // 2. Tampilkan pesan jika tidak ada data murid yang sesuai
+  if (filteredData.length === 0) {
+    container.innerHTML = `
+      <div class="p-8 text-center text-gray-400 font-medium">
+        Tidak ada data murid untuk <br><strong>${filterState.guru}</strong> (Sesi ${filterState.sesi})
+      </div>
+    `;
+    return;
+  }
+
+  // 3. Render baris murid yang lolos filter
+  container.innerHTML = filteredData
+    .map((item, index) => {
       const isFemale = item.jk === "P";
       const badgeStyle = isFemale
         ? "bg-pink-100 text-pink-700"
         : "bg-blue-100 text-blue-700";
 
       return `
-            <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
-                <div class="font-medium text-gray-500">${item.no}</div>
-                
-                <!-- Nama Murid -->
-                <div 
-                  onclick="toggleName(this)" 
-                  class="name-col text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-150"
-                  title="Klik untuk lihat nama lengkap"
-                >
-                  ${item.nama}
-                </div>
-
-                <!-- Kolom JK -->
-                <div class="extra-col">
-                    <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
-                </div>
-
-                <!-- Kolom Halaman -->
-                <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">
-                  ${item.halaman}
-                </div>
+        <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
+            <!-- Nomor urut otomatis (1, 2, 3...) berdasarkan hasil filter -->
+            <div class="font-medium text-gray-500">${index + 1}</div>
+            
+            <!-- Nama Murid (Bisa diklik untuk memperluas) -->
+            <div 
+              onclick="toggleName(this)" 
+              class="name-col text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-150"
+              title="Klik untuk lihat nama lengkap"
+            >
+              ${item.nama}
             </div>
-        `;
+
+            <!-- Kolom JK -->
+            <div class="extra-col">
+                <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
+            </div>
+
+            <!-- Kolom Halaman -->
+            <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">
+              ${item.halaman}
+            </div>
+        </div>
+      `;
     })
     .join("");
 }
@@ -306,7 +320,7 @@ function toggleName(element) {
     // 1. Sembunyikan elemen JK dan Halaman
     extraCols.forEach((col) => col.classList.add("hidden"));
 
-    // 2. Ubah kolom nama agar mengambil sisa ruang grid
+    // 2. Ubah kolom nama agar mengambil sisa ruang grid (mengisi 3 kolom sisanya)
     element.classList.remove("truncate");
     element.classList.add("col-span-3", "whitespace-normal", "break-words");
   } else {
@@ -318,8 +332,6 @@ function toggleName(element) {
     element.classList.remove("col-span-3", "whitespace-normal", "break-words");
   }
 }
-
-document.addEventListener("DOMContentLoaded", renderTable);
 
 /*
 FUNGSI MENU BAR DIBAWAH
