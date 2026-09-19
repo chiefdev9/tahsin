@@ -36,9 +36,14 @@ function parseCSV(text) {
     .split(",")
     .map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
 
-  // Cari posisi index Kolom "Guru Saat Ini" (Kolom K = Index 10)
+  // Cari index posisi kolom khusus
+  let idxNama = headers.findIndex((h) => h.includes("nama"));
+  if (idxNama === -1) idxNama = 1; // Fallback ke Kolom B (Index 1)
+
   let idxGuruSaatIni = headers.findIndex((h) => h.includes("guru saat ini"));
-  if (idxGuruSaatIni === -1) idxGuruSaatIni = 10;
+  if (idxGuruSaatIni === -1) idxGuruSaatIni = 10; // Fallback ke Kolom K (Index 10)
+
+  let idxKelas = headers.findIndex((h) => h.includes("kelas"));
 
   const data = [];
   for (let i = 1; i < lines.length; i++) {
@@ -50,17 +55,25 @@ function parseCSV(text) {
     const cleanedRow = row.map((val) => val.trim().replace(/^"|"$/g, ""));
 
     let obj = {};
+
+    // Map semua kolom default berdasarkan header
     headers.forEach((header, index) => {
       let val = cleanedRow[index] || "";
       if (header === "no") val = parseInt(val, 10) || i;
       obj[header] = val;
     });
 
-    // Ambil nilai khusus dari Kolom K ("Guru Saat Ini")
+    // 1. Ambil Nama Siswa khusus dari Kolom B (Index 1)
+    obj["nama"] = cleanedRow[idxNama] || obj["nama"] || "";
+
+    // 2. Ambil Kelas utuh beserta sign-nya (misal: "P1 MECCA")
+    if (idxKelas !== -1 && cleanedRow[idxKelas]) {
+      obj["kelas"] = cleanedRow[idxKelas];
+    }
+
+    // 3. Ambil Guru Saat Ini dari Kolom K (Index 10) & Trim Ustaz/Ustazah
     const rawGuru =
       cleanedRow[idxGuruSaatIni] || obj["guru saat ini"] || obj["guru"] || "";
-
-    // Bersihkan gelar "Ustaz/Ustazah" lalu simpan ke properti 'guru'
     obj["guru"] = cleanNamaGuru(rawGuru);
 
     data.push(obj);
@@ -177,7 +190,7 @@ function renderTable() {
                 <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
             </div>
 
-            <!-- Kolom Kategori (Dinamis) -->
+            <!-- Kolom Kategori (Dinamis: Halaman/Jilid/Kelas) -->
             <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
               ${nilaiKategori}
             </div>
