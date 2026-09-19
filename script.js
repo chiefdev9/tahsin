@@ -1,4 +1,3 @@
-
 // ==========================================
 // 1. URL CSV & STATE FILTER
 // ==========================================
@@ -180,7 +179,7 @@ function toggleName(element) {
 }
 
 // ==========================================
-// 4. RENDER TABEL
+// 4. RENDER TABEL (SEJAJAR DENGAN HEADER)
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
@@ -216,20 +215,18 @@ function renderTable() {
     });
   }
 
-  // Alignment nilai kategori: Halaman = Center, Kelas/Jilid = Left
-  const isHalaman = keyKategori === "halaman";
-  const alignKategoriClass = isHalaman ? "text-center px-1" : "text-left px-2";
-
   container.innerHTML = filteredData
     .map((item, index) => {
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
-        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
-            <!-- No -->
-            <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
+        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 items-center hover:bg-gray-50 transition-all border-b border-gray-100">
+            <!-- Kolom 1: No (Rata Tengah) -->
+            <div class="text-center font-medium text-gray-400 text-xs">
+              ${index + 1}
+            </div>
             
-            <!-- Nama Murid: Tanpa efek warna hover/klik (Teks seragam text-gray-800) -->
+            <!-- Kolom 2: Nama Murid (Rata Kiri agar sejajar dengan Header) -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
@@ -237,13 +234,13 @@ function renderTable() {
               ${item.nama}
             </div>
 
-            <!-- Kolom JK -->
-            <div class="extra-col font-bold text-gray-600 text-[11px] uppercase">
+            <!-- Kolom 3: JK (Rata Tengah) -->
+            <div class="extra-col text-center font-bold text-gray-600 text-[11px] uppercase">
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori -->
-            <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
+            <!-- Kolom 4: Nilai Kategori (Rata Tengah Konsisten) -->
+            <div class="extra-col text-center px-1 font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
               ${nilaiKategori}
             </div>
         </div>
@@ -256,15 +253,10 @@ function renderTable() {
 // 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
-  const headerDaftar = document.getElementById("header-daftar-murid");
-  if (headerDaftar) {
-    headerDaftar.className = "text-center font-semibold";
-  }
-
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
-    headerElem.className = "text-center font-semibold";
+    headerElem.className = "text-center px-1";
   }
 }
 
