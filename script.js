@@ -6,7 +6,7 @@ const CSV_URL =
 
 const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
 
-let muridList = []; // Data dari CSV Google Sheets
+let muridList = [];
 
 let filterState = {
   guru: "Vera",
@@ -15,10 +15,9 @@ let filterState = {
 };
 
 // ==========================================
-// 2. PARSER CSV & FETCH DATA
+// 2. PARSER CSV ROBUST & FETCH DATA
 // ==========================================
 
-// Fungsi khusus pembersih gelar Ustaz / Ustazah untuk filter menu
 function cleanNamaGuru(nama) {
   if (!nama) return "";
   return nama
@@ -26,65 +25,105 @@ function cleanNamaGuru(nama) {
     .trim();
 }
 
-// Parsing CSV: Membaca baris pertama sebagai Key Objek
-function parseCSV(text) {
-  const lines = text.trim().split("\n");
+// Fungsi Parser CSV yang sangat akurat menangani teks berkoma & tanda kutip
+function parseCSV(csvText) {
+  const lines = [];
+  let row = [];
+  let inQuotes = false;
+  let currentToken = "";
+
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    const nextChar = csvText[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        currentToken += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      row.push(currentToken.trim());
+      currentToken = "";
+    } else if ((char === "\r" || char === "\n") && !inQuotes) {
+      if (char === "\r" && nextChar === "\n") {
+        i++;
+      }
+      row.push(currentToken.trim());
+      if (row.length > 1 || row[0] !== "") {
+        lines.push(row);
+      }
+      row = [];
+      currentToken = "";
+    } else {
+      currentToken += char;
+    }
+  }
+
+  if (currentToken || row.length > 0) {
+    row.push(currentToken.trim());
+    lines.push(row);
+  }
+
   if (lines.length < 2) return [];
 
-  // Baris pertama CSV langsung dijadikan array KEY / Header
-  const headers = lines[0]
-    .split(",")
-    .map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
+  // Baris 0 sebagai Header
+  const headers = lines[0].map((h) => h.toLowerCase());
+
+  // Cari posisi index spesifik
+  let idxNama = headers.findIndex((h) => h.includes("nama"));
+  if (idxNama === -1) idxNama = 1; // Default Kolom B
+
+  let idxGuru = headers.findIndex((h) => h.includes("guru saat ini"));
+  if (idxGuru === -1) idxGuru = 10; // Default Kolom K
+
+  let idxKelas = headers.findIndex((h) => h.includes("kelas"));
+  let idxSaatIni = headers.findIndex((h) => h.includes("saat ini"));
+  let idxHalaman = headers.findIndex((h) => h.includes("halaman"));
+  let idxSesi = headers.findIndex((h) => h.includes("sesi"));
+  let idxJK = headers.findIndex((h) => h.includes("jk"));
 
   const data = [];
 
   for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-
-    // Memisah kolom dengan tetap aman jika ada teks di dalam tanda kutip
-    const row =
-      lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(",");
-    const cleanedRow = row.map((val) => val.trim().replace(/^"|"$/g, ""));
+    const rowData = lines[i];
+    if (!rowData || rowData.length === 0) continue;
 
     let obj = {};
 
-    // Map setiap kolom langsung ke KEY (Header baris pertama)
-    headers.forEach((header, index) => {
-      let val = cleanedRow[index] || "";
-      obj[header] = val;
-    });
+    // 1. Nama Siswa lengkap 100% tanpa potongan
+    obj["nama"] = rowData[idxNama] || "";
 
-    // --- PROSES DATA SESUAI VALUE ASLI CSV --- //
+    // 2. Jenis Kelamin
+    obj["jk"] = rowData[idxJK] || "-";
 
-    // 1. Nama Siswa lengkap apa adanya
-    obj["nama"] = obj["nama siswa"] || obj["nama"] || "";
+    // 3. Kelas apa adanya
+    obj["kelas"] = idxKelas !== -1 ? rowData[idxKelas] : "-";
 
-    // 2. Nomor Urut
-    obj["no"] = parseInt(obj["no"], 10) || i;
+    // 4. Jilid dari "Saat Ini" apa adanya
+    obj["jilid"] = idxSaatIni !== -1 ? rowData[idxSaatIni] : "-";
 
-    // 3. Kelas apa adanya sesuai value dari CSV
-    obj["kelas"] = obj["kelas"] || "-";
+    // 5. Halaman
+    obj["halaman"] = idxHalaman !== -1 ? rowData[idxHalaman] : "-";
 
-    // 4. Jilid diambil apa adanya dari kolom "Saat Ini"
-    obj["jilid"] = obj["saat ini"] || "-";
-
-    // 5. Guru diambil dari "Guru Saat Ini" (hanya membersihkan gelar Ustaz/Ustazah untuk filter)
-    const rawGuru = obj["guru saat ini"] || obj["guru"] || "";
+    // 6. Guru Saat Ini
+    const rawGuru = idxGuru !== -1 ? rowData[idxGuru] : "";
     obj["guru"] = cleanNamaGuru(rawGuru);
 
-    // 6. Sesi untuk filter
-    if (obj["sesi"]) {
-      obj["sesi"] =
-        obj["sesi"].charAt(0).toUpperCase() +
-        obj["sesi"].slice(1).toLowerCase();
-    }
+    // 7. Sesi
+    const rawSesi = idxSesi !== -1 ? rowData[idxSesi] : "";
+    obj["sesi"] = rawSesi
+      ? rawSesi.charAt(0).toUpperCase() + rawSesi.slice(1).toLowerCase()
+      : "";
 
     data.push(obj);
   }
+
   return data;
 }
 
-// Fungsi Fetch Data dari Google Sheets
+// Fetch Data CSV
 async function loadDataFromCSV() {
   const container = document.getElementById("table-body");
   if (container) {
@@ -103,7 +142,6 @@ async function loadDataFromCSV() {
     const csvText = await response.text();
     muridList = parseCSV(csvText);
 
-    // Update UI setelah data siap
     updateUI();
   } catch (error) {
     console.error("Error loading CSV:", error);
@@ -118,7 +156,7 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. LOGIKA TOGGLE NAMA
+// 3. LOGIKA TOGGLE NAMA (OPSIONAL)
 // ==========================================
 function toggleName(element) {
   const row = element.parentElement;
@@ -141,13 +179,12 @@ function toggleName(element) {
 }
 
 // ==========================================
-// 4. RENDER TABEL (DINAMIS SESUAI KATEGORI)
+// 4. RENDER TABEL
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
 
-  // Filter murid berdasarkan guru (dari "Guru Saat Ini") dan sesi aktif
   const filteredData = muridList.filter((item) => {
     return (
       item.guru?.toLowerCase() === filterState.guru.toLowerCase() &&
@@ -164,7 +201,6 @@ function renderTable() {
     return;
   }
 
-  // Tentukan property yang diambil berdasarkan filter kategori ("halaman", "jilid", atau "kelas")
   const keyKategori = filterState.kategori.toLowerCase();
 
   container.innerHTML = filteredData
@@ -174,17 +210,16 @@ function renderTable() {
         ? "bg-pink-100 text-pink-700"
         : "bg-blue-100 text-blue-700";
 
-      // Nilai kategori diambil lengkap apa adanya dari CSV
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
         <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
             <div class="font-medium text-gray-500">${index + 1}</div>
             
+            <!-- Nama murid ditampilkan utuh tanpa dipotong -->
             <div 
               onclick="toggleName(this)" 
-              class="name-col text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-150"
-              title="Klik untuk lihat nama lengkap"
+              class="name-col text-left px-2 font-medium text-gray-900 whitespace-normal break-words cursor-pointer select-none"
             >
               ${item.nama}
             </div>
@@ -194,7 +229,7 @@ function renderTable() {
                 <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
             </div>
 
-            <!-- Kolom Kategori (Halaman / Jilid / Kelas) -->
+            <!-- Kolom Kategori -->
             <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-1 rounded-md font-semibold text-xs truncate">
               ${nilaiKategori}
             </div>
@@ -224,7 +259,7 @@ function updateUI() {
 }
 
 // ==========================================
-// 6. KONTROL DROPDOWN & OVERLAY
+// 6. KONTROL DROPDOWN
 // ==========================================
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
@@ -316,6 +351,6 @@ function updateDropdownTextAndCheckmarks(dropdownId, value) {
 }
 
 // ==========================================
-// 7. INISIALISASI UTAMA
+// 7. INISIALISASI
 // ==========================================
 document.addEventListener("DOMContentLoaded", loadDataFromCSV);
