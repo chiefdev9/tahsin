@@ -141,41 +141,35 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. LOGIKA OVERLAY 1 BARIS MENUTUPI KOLOM SAMPLING
+// 3. LOGIKA TOGGLE NAMA (1 BARIS TERBACA UTUH MENUTUPI KOLOM SAMPLING)
 // ==========================================
-function toggleExpandNama(element) {
-  const isExpanded = element.classList.contains("is-expanded");
+function toggleName(element) {
+  const parentRow = element.closest(".grid");
+  if (!parentRow) return;
 
-  // Tutup semua nama lain yang mungkin sedang terbuka
-  document.querySelectorAll(".is-expanded").forEach((el) => {
-    el.classList.remove(
-      "is-expanded",
-      "absolute",
-      "left-[7%]",
-      "right-2",
-      "z-20",
-      "bg-white",
-      "shadow-md",
-      "py-1",
-      "pr-2",
-    );
-    el.classList.add("truncate");
-  });
+  const extraCols = parentRow.querySelectorAll(".extra-col");
+  const isExpanded =
+    element.classList.contains("whitespace-nowrap") &&
+    !element.classList.contains("truncate");
 
   if (!isExpanded) {
-    // Buka nama secara memanjang 1 baris di atas JK & Kategori
+    // Sembunyikan kolom JK & Kategori di baris tersebut
+    extraCols.forEach((col) => col.classList.add("hidden"));
+
+    // Ubah kolom nama agar mengambil sisa 3 kolom (col-span-3) dan dapat di-scroll horizontal jika sangat panjang
     element.classList.remove("truncate");
-    element.classList.add(
-      "is-expanded",
-      "absolute",
-      "left-[7%]",
-      "right-2",
-      "z-20",
-      "bg-white",
-      "shadow-md",
-      "py-1",
-      "pr-2",
+    element.classList.add("col-span-3", "whitespace-nowrap", "overflow-x-auto");
+  } else {
+    // Kembalikan nama ke tampilan terpotong semula
+    element.classList.remove(
+      "col-span-3",
+      "whitespace-nowrap",
+      "overflow-x-auto",
     );
+    element.classList.add("truncate");
+
+    // Tampilkan kembali kolom JK & Kategori
+    extraCols.forEach((col) => col.classList.remove("hidden"));
   }
 }
 
@@ -216,6 +210,7 @@ function renderTable() {
     });
   }
 
+  // Alignment nilai kategori: Halaman = Center, Kelas/Jilid = Left
   const isHalaman = keyKategori === "halaman";
   const alignKategoriClass = isHalaman ? "text-center px-1" : "text-left px-2";
 
@@ -224,25 +219,25 @@ function renderTable() {
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
-        <div class="relative grid grid-cols-[7%_51%_10%_32%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
+        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid (Overlay 1 Baris saat diklik) -->
+            <!-- Nama Murid -->
             <div 
-              onclick="toggleExpandNama(this)" 
-              title="Klik untuk lihat nama utuh"
-              class="text-left px-1 font-semibold text-gray-800 text-xs truncate whitespace-nowrap cursor-pointer hover:text-indigo-600 transition-all">
+              onclick="toggleName(this)" 
+              title="Klik untuk lihat nama lengkap"
+              class="name-col text-left px-1 font-semibold text-gray-800 text-xs truncate cursor-pointer select-none transition-all">
               ${item.nama}
             </div>
 
-            <!-- Kolom JK -->
-            <div class="font-bold text-gray-600 text-xs">
+            <!-- Kolom JK (extra-col) -->
+            <div class="extra-col font-bold text-gray-600 text-xs">
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori -->
-            <div class="${alignKategoriClass} font-semibold text-gray-700 text-xs whitespace-normal break-words">
+            <!-- Kolom Nilai Kategori (extra-col) -->
+            <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-xs whitespace-normal break-words">
               ${nilaiKategori}
             </div>
         </div>
