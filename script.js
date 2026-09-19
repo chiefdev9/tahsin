@@ -252,91 +252,8 @@ const muridList = [
 ];
 
 // ==========================================
-// RENDER DOM TABEL DATA + FEATURE TOGGLE NAMA
+// 1. STATE FILTER
 // ==========================================
-function renderTable() {
-  const container = document.getElementById("table-body");
-  if (!container) return;
-
-  // 1. Filter murid berdasarkan guru dan sesi yang sedang aktif
-  const filteredData = muridList.filter((item) => {
-    return item.guru === filterState.guru && item.sesi === filterState.sesi;
-  });
-
-  // 2. Tampilkan pesan jika tidak ada data murid yang sesuai
-  if (filteredData.length === 0) {
-    container.innerHTML = `
-      <div class="p-8 text-center text-gray-400 font-medium">
-        Tidak ada data murid untuk <br><strong>${filterState.guru}</strong> (Sesi ${filterState.sesi})
-      </div>
-    `;
-    return;
-  }
-
-  // 3. Render baris murid yang lolos filter
-  container.innerHTML = filteredData
-    .map((item, index) => {
-      const isFemale = item.jk === "P";
-      const badgeStyle = isFemale
-        ? "bg-pink-100 text-pink-700"
-        : "bg-blue-100 text-blue-700";
-
-      return `
-        <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
-            <!-- Nomor urut otomatis (1, 2, 3...) berdasarkan hasil filter -->
-            <div class="font-medium text-gray-500">${index + 1}</div>
-            
-            <!-- Nama Murid (Bisa diklik untuk memperluas) -->
-            <div 
-              onclick="toggleName(this)" 
-              class="name-col text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-150"
-              title="Klik untuk lihat nama lengkap"
-            >
-              ${item.nama}
-            </div>
-
-            <!-- Kolom JK -->
-            <div class="extra-col">
-                <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
-            </div>
-
-            <!-- Kolom Halaman -->
-            <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">
-              ${item.halaman}
-            </div>
-        </div>
-      `;
-    })
-    .join("");
-}
-
-// Fungsi toggle untuk menyembunyikan kolom ekstra saat nama meluas
-function toggleName(element) {
-  const row = element.parentElement; // Mengambil elemen baris induk (.grid)
-  const extraCols = row.querySelectorAll(".extra-col"); // Mengambil elemen JK & Halaman
-  const isTruncated = element.classList.contains("truncate");
-
-  if (isTruncated) {
-    // 1. Sembunyikan elemen JK dan Halaman
-    extraCols.forEach((col) => col.classList.add("hidden"));
-
-    // 2. Ubah kolom nama agar mengambil sisa ruang grid (mengisi 3 kolom sisanya)
-    element.classList.remove("truncate");
-    element.classList.add("col-span-3", "whitespace-normal", "break-words");
-  } else {
-    // 1. Tampilkan kembali elemen JK dan Halaman
-    extraCols.forEach((col) => col.classList.remove("hidden"));
-
-    // 2. Kembalikan kolom nama ke mode potong (58%)
-    element.classList.add("truncate");
-    element.classList.remove("col-span-3", "whitespace-normal", "break-words");
-  }
-}
-
-/*
-FUNGSI MENU BAR DIBAWAH
-DISESUAIKAN DENGAN GURU SMALA
-*/
 const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
 
 let filterState = {
@@ -346,7 +263,93 @@ let filterState = {
 };
 
 // ==========================================
-// 2. KONTROL DROPDOWN & OVERLAY
+// 2. LOGIKA TOGGLE NAMA (DIPERBAIKI)
+// ==========================================
+function toggleName(element) {
+  const row = element.parentElement; // Element induk (.grid)
+  const extraCols = row.querySelectorAll(".extra-col");
+  const isTruncated = element.classList.contains("truncate");
+
+  if (isTruncated) {
+    // Sembunyikan JK & Halaman
+    extraCols.forEach((col) => col.classList.add("hidden"));
+
+    // Ubah pembagian kolom grid induk agar nama mendapat ruang penuh
+    row.classList.remove("grid-cols-[7%_58%_13%_22%]");
+    row.classList.add("grid-cols-[7%_93%]");
+
+    // Lepas batasan potong teks
+    element.classList.remove("truncate");
+    element.classList.add("whitespace-normal", "break-words");
+  } else {
+    // Tampilkan kembali JK & Halaman
+    extraCols.forEach((col) => col.classList.remove("hidden"));
+
+    // Kembalikan pembagian kolom grid awal
+    row.classList.remove("grid-cols-[7%_93%]");
+    row.classList.add("grid-cols-[7%_58%_13%_22%]");
+
+    // Kembalikan ke mode potong teks
+    element.classList.add("truncate");
+    element.classList.remove("whitespace-normal", "break-words");
+  }
+}
+
+// ==========================================
+// 3. RENDER TABEL
+// ==========================================
+function renderTable() {
+  const container = document.getElementById("table-body");
+  if (!container) return;
+
+  // Filter murid berdasarkan pilihan aktif
+  const filteredData = muridList.filter((item) => {
+    return item.guru === filterState.guru && item.sesi === filterState.sesi;
+  });
+
+  if (filteredData.length === 0) {
+    container.innerHTML = `
+      <div class="p-8 text-center text-gray-400 font-medium">
+        Tidak ada data murid untuk <br><strong>${filterState.guru}</strong> (Sesi ${filterState.sesi})
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filteredData
+    .map((item, index) => {
+      const isFemale = item.jk === "P";
+      const badgeStyle = isFemale
+        ? "bg-pink-100 text-pink-700"
+        : "bg-blue-100 text-blue-700";
+
+      return `
+        <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
+            <div class="font-medium text-gray-500">${index + 1}</div>
+            
+            <div 
+              onclick="toggleName(this)" 
+              class="name-col text-left px-2 font-medium text-gray-900 truncate cursor-pointer select-none transition-all duration-150"
+              title="Klik untuk lihat nama lengkap"
+            >
+              ${item.nama}
+            </div>
+
+            <div class="extra-col">
+                <span class="${badgeStyle} font-bold text-[10px] px-1.5 py-0.5 rounded inline-block">${item.jk}</span>
+            </div>
+
+            <div class="extra-col bg-indigo-50 text-indigo-700 py-1 px-2 rounded-md font-semibold text-xs">
+              ${item.halaman}
+            </div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+// ==========================================
+// 4. KONTROL DROPDOWN & OVERLAY
 // ==========================================
 function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
@@ -354,7 +357,6 @@ function toggleDropdown(dropdownId) {
 
   const targetMenu = targetDropdown.querySelector(".dropdown-menu");
   const backdrop = document.getElementById("dropdown-backdrop");
-
   if (!targetMenu) return;
 
   const isHidden = targetMenu.classList.contains("hidden");
@@ -372,20 +374,14 @@ function closeAllDropdowns() {
   });
 
   const backdrop = document.getElementById("dropdown-backdrop");
-  if (backdrop) {
-    backdrop.classList.add("hidden");
-  }
+  if (backdrop) backdrop.classList.add("hidden");
 }
 
-// ==========================================
-// 3. PILIHAN DROPDOWN & LOGIKA DISABLE
-// ==========================================
 function selectOption(dropdownId, value) {
   if (dropdownId === "dropdown-guru") filterState.guru = value;
   if (dropdownId === "dropdown-kategori") filterState.kategori = value;
   if (dropdownId === "dropdown-waktu") filterState.sesi = value;
 
-  // Jika guru khusus pagi dipilih, paksa sesi berpindah ke Pagi
   if (GURU_KHUSUS_PAGI.includes(filterState.guru)) {
     filterState.sesi = "Pagi";
   }
@@ -405,18 +401,10 @@ function updateSesiDisableState() {
     if (textSpan && textSpan.innerText.trim() === "Siang") {
       if (isPagiOnly) {
         btn.disabled = true;
-        btn.classList.add(
-          "opacity-40",
-          "cursor-not-allowed",
-          "pointer-events-none",
-        );
+        btn.classList.add("opacity-40", "cursor-not-allowed", "pointer-events-none");
       } else {
         btn.disabled = false;
-        btn.classList.remove(
-          "opacity-40",
-          "cursor-not-allowed",
-          "pointer-events-none",
-        );
+        btn.classList.remove("opacity-40", "cursor-not-allowed", "pointer-events-none");
       }
     }
   });
@@ -445,52 +433,8 @@ function updateDropdownTextAndCheckmarks(dropdownId, value) {
 }
 
 // ==========================================
-// 4. RENDER DOM TABEL DATA
+// 5. INISIALISASI UTAMA
 // ==========================================
-function renderTable() {
-  const tableBody = document.getElementById("table-body");
-  if (!tableBody) return;
-
-  // Filter murid berdasarkan guru dan sesi aktif
-  const filteredData = muridList.filter((m) => {
-    return m.guru === filterState.guru && m.sesi === filterState.sesi;
-  });
-
-  if (filteredData.length === 0) {
-    tableBody.innerHTML = `
-      <div class="p-8 text-center text-gray-400 font-medium">
-        Tidak ada data murid untuk <br><strong>${filterState.guru}</strong> (Sesi ${filterState.sesi})
-      </div>
-    `;
-    return;
-  }
-
-  // Render baris murid yang lolos filter
-  tableBody.innerHTML = filteredData
-    .map((m, index) => {
-      const isEven = index % 2 === 1;
-      const bgClass = isEven ? "bg-gray-50/60" : "bg-white";
-
-      return `
-      <div class="grid grid-cols-[7%_58%_13%_22%] py-3 px-2 text-center items-center ${bgClass} hover:bg-indigo-50/40 transition-colors">
-        <div class="font-medium text-gray-500">${index + 1}</div>
-        <div class="text-left px-2 font-semibold text-gray-800 truncate">${m.nama}</div>
-        <div>
-          <span class="inline-block px-2 py-0.5 text-xs font-bold rounded-md ${
-            m.jk === "L"
-              ? "bg-blue-100 text-blue-700"
-              : "bg-pink-100 text-pink-700"
-          }">
-            ${m.jk}
-          </span>
-        </div>
-        <div class="font-bold text-indigo-600">${m.halaman}</div>
-      </div>
-    `;
-    })
-    .join("");
-}
-
 function updateUI() {
   updateSesiDisableState();
   updateDropdownTextAndCheckmarks("dropdown-guru", filterState.guru);
@@ -499,7 +443,4 @@ function updateUI() {
   renderTable();
 }
 
-// Inisialisasi saat pertama kali halaman dimuat
-document.addEventListener("DOMContentLoaded", () => {
-  updateUI();
-});
+document.addEventListener("DOMContentLoaded", updateUI);
