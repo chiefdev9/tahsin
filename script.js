@@ -146,16 +146,15 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG / TRUNCATE)
+// 3. LOGIKA TOGGLE NAMA (WARNA TEKS SERAGAM SAAT EXPANDED)
 // ==========================================
 function toggleName(element) {
-  // Cek apakah teks benar-benar terpotong (overflow/truncated) atau sedang kondisi ter-expand
   const isTruncated = element.scrollWidth > element.clientWidth;
   const isExpanded =
     element.classList.contains("whitespace-nowrap") &&
     !element.classList.contains("truncate");
 
-  // Jika nama tidak terpotong dan belum di-expand, tidak perlu menyembunyikan kolom extra
+  // Jika nama tidak terpotong dan belum di-expand, jangan jalankan fungsi
   if (!isTruncated && !isExpanded) return;
 
   const parentRow = element.closest(".grid");
@@ -164,28 +163,22 @@ function toggleName(element) {
   const extraCols = parentRow.querySelectorAll(".extra-col");
 
   if (!isExpanded) {
-    // Sembunyikan kolom JK & Kategori di baris ini
+    // Sembunyikan kolom ekstra (JK & Kategori)
     extraCols.forEach((col) => col.classList.add("hidden"));
 
-    // Ubah kolom nama agar mengambil sisa 3 kolom (col-span-3) dan dapat di-scroll
+    // Ubah layout nama agar panjang & bisa di-scroll, warna teks tetap seragam
     element.classList.remove("truncate");
-    element.classList.add(
-      "col-span-3",
-      "whitespace-nowrap",
-      "overflow-x-auto",
-      "text-indigo-600",
-    );
+    element.classList.add("col-span-3", "whitespace-nowrap", "overflow-x-auto");
   } else {
     // Kembalikan ke tampilan terpotong semula
     element.classList.remove(
       "col-span-3",
       "whitespace-nowrap",
       "overflow-x-auto",
-      "text-indigo-600",
     );
     element.classList.add("truncate");
 
-    // Tampilkan kembali kolom JK & Kategori
+    // Tampilkan kembali kolom ekstra
     extraCols.forEach((col) => col.classList.remove("hidden"));
   }
 }
@@ -240,7 +233,7 @@ function renderTable() {
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid: Teks Proper-case (text-[13px]), Hover & Click HANYA MENGUBAH WARNA TEKS -->
+            <!-- Nama Murid: Hover mengubah warna teks, tetapi saat diklik teks tetap warna seragam -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
@@ -248,12 +241,12 @@ function renderTable() {
               ${item.nama}
             </div>
 
-            <!-- Kolom JK (Uppercase & Diperkecil ke text-[11px]) -->
+            <!-- Kolom JK -->
             <div class="extra-col font-bold text-gray-600 text-[11px] uppercase">
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori (Uppercase & Diperkecil ke text-[11px], Nilai tetap Rata Kiri kecuali Halaman) -->
+            <!-- Kolom Nilai Kategori -->
             <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
               ${nilaiKategori}
             </div>
@@ -267,13 +260,11 @@ function renderTable() {
 // 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
-  // Header Daftar Murid Rata Tengah
   const headerDaftar = document.getElementById("header-daftar-murid");
   if (headerDaftar) {
     headerDaftar.className = "text-center font-semibold";
   }
 
-  // Header Kategori Rata Tengah
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
