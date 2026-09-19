@@ -1,7 +1,3 @@
-// ==========================================
-// DATA TIDAK PUNYA WARNA TAPI FUNGSI NAMA PANJANG DI KLIK TERLIHAT RAPI
-// INI END POINT
-// ==========================================
 
 // ==========================================
 // 1. URL CSV & STATE FILTER
@@ -146,7 +142,7 @@ async function loadDataFromCSV() {
 }
 
 // ==========================================
-// 3. LOGIKA TOGGLE NAMA (WARNA TEKS SERAGAM SAAT EXPANDED)
+// 3. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 // ==========================================
 function toggleName(element) {
   const isTruncated = element.scrollWidth > element.clientWidth;
@@ -166,7 +162,7 @@ function toggleName(element) {
     // Sembunyikan kolom ekstra (JK & Kategori)
     extraCols.forEach((col) => col.classList.add("hidden"));
 
-    // Ubah layout nama agar panjang & bisa di-scroll, warna teks tetap seragam
+    // Ubah layout nama agar panjang & bisa di-scroll
     element.classList.remove("truncate");
     element.classList.add("col-span-3", "whitespace-nowrap", "overflow-x-auto");
   } else {
@@ -233,11 +229,11 @@ function renderTable() {
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid: Hover mengubah warna teks, tetapi saat diklik teks tetap warna seragam -->
+            <!-- Nama Murid: Tanpa efek warna hover/klik (Teks seragam text-gray-800) -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
-              class="name-col text-left px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none transition-colors duration-150 hover:text-indigo-600">
+              class="name-col text-left px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none">
               ${item.nama}
             </div>
 
