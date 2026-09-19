@@ -179,7 +179,7 @@ function toggleName(element) {
 }
 
 // ==========================================
-// 4. RENDER TABEL (SEJAJAR DENGAN HEADER)
+// 4. RENDER TABEL
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
@@ -226,7 +226,7 @@ function renderTable() {
               ${index + 1}
             </div>
             
-            <!-- Kolom 2: Nama Murid (Rata Kiri agar sejajar dengan Header) -->
+            <!-- Kolom 2: Nama Murid (Isi Rata Kiri) -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
@@ -239,7 +239,7 @@ function renderTable() {
               ${item.jk}
             </div>
 
-            <!-- Kolom 4: Nilai Kategori (Rata Tengah Konsisten) -->
+            <!-- Kolom 4: Nilai Kategori (Rata Tengah) -->
             <div class="extra-col text-center px-1 font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
               ${nilaiKategori}
             </div>
@@ -253,6 +253,13 @@ function renderTable() {
 // 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
+  // Memastikan Header Daftar Murid Tetap Rata Tengah (Center)
+  const headerDaftar = document.getElementById("header-daftar-murid");
+  if (headerDaftar) {
+    headerDaftar.className = "text-center";
+  }
+
+  // Memastikan Header Kategori Tetap Rata Tengah (Center)
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;

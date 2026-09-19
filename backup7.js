@@ -162,22 +162,16 @@ function toggleName(element) {
     extraCols.forEach((col) => col.classList.add("hidden"));
 
     // Ubah layout nama agar panjang & bisa di-scroll
-    element.classList.remove("truncate", "text-center");
-    element.classList.add(
-      "col-span-3",
-      "whitespace-nowrap",
-      "overflow-x-auto",
-      "text-left",
-    );
+    element.classList.remove("truncate");
+    element.classList.add("col-span-3", "whitespace-nowrap", "overflow-x-auto");
   } else {
     // Kembalikan ke tampilan terpotong semula
     element.classList.remove(
       "col-span-3",
       "whitespace-nowrap",
       "overflow-x-auto",
-      "text-left",
     );
-    element.classList.add("truncate", "text-center");
+    element.classList.add("truncate");
 
     // Tampilkan kembali kolom ekstra
     extraCols.forEach((col) => col.classList.remove("hidden"));
@@ -185,7 +179,7 @@ function toggleName(element) {
 }
 
 // ==========================================
-// 4. RENDER TABEL
+// 4. RENDER TABEL (SEJAJAR DENGAN HEADER)
 // ==========================================
 function renderTable() {
   const container = document.getElementById("table-body");
@@ -221,33 +215,32 @@ function renderTable() {
     });
   }
 
-  // Semua nilai kategori dibuat Rata Tengah (Center) secara seragam
-  const alignKategoriClass = "text-center px-1";
-
   container.innerHTML = filteredData
     .map((item, index) => {
       const nilaiKategori = item[keyKategori] || "-";
 
       return `
-        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 text-center items-center hover:bg-gray-50 transition-all">
-            <!-- No: Rata Tengah -->
-            <div class="font-medium text-gray-400 text-xs text-center">${index + 1}</div>
+        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 items-center hover:bg-gray-50 transition-all border-b border-gray-100">
+            <!-- Kolom 1: No (Rata Tengah) -->
+            <div class="text-center font-medium text-gray-400 text-xs">
+              ${index + 1}
+            </div>
             
-            <!-- Nama Murid: Rata Tengah -->
+            <!-- Kolom 2: Nama Murid (Rata Kiri agar sejajar dengan Header) -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
-              class="name-col text-center px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none">
+              class="name-col text-left px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none">
               ${item.nama}
             </div>
 
-            <!-- Kolom JK: Rata Tengah -->
-            <div class="extra-col font-bold text-gray-600 text-[11px] uppercase text-center">
+            <!-- Kolom 3: JK (Rata Tengah) -->
+            <div class="extra-col text-center font-bold text-gray-600 text-[11px] uppercase">
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori (Halaman/Jilid/Kelas): Rata Tengah -->
-            <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words text-center">
+            <!-- Kolom 4: Nilai Kategori (Rata Tengah Konsisten) -->
+            <div class="extra-col text-center px-1 font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
               ${nilaiKategori}
             </div>
         </div>
@@ -263,7 +256,7 @@ function updateHeaderKategori() {
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
-    headerElem.className = "text-center px-2";
+    headerElem.className = "text-center px-1";
   }
 }
 
