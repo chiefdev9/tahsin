@@ -1,6 +1,6 @@
 // ==========================================
 // DATA TIDAK PUNYA WARNA TAPI FUNGSI NAMA PANJANG DI KLIK TERLIHAT RAPI
-// INI END POINT
+//INI END POINT
 // ==========================================
 
 // ==========================================
@@ -228,21 +228,21 @@ function renderTable() {
             <!-- No -->
             <div class="font-medium text-gray-400 text-xs">${index + 1}</div>
             
-            <!-- Nama Murid (Proper-case dibuat text-[13px] + Hover Senada Header) -->
+            <!-- Nama Murid -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
-              class="name-col text-left px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none transition-all duration-150 hover:text-indigo-600 hover:bg-indigo-50/80 rounded">
+              class="name-col text-left px-1 font-semibold text-gray-800 text-xs truncate cursor-pointer select-none transition-all">
               ${item.nama}
             </div>
 
-            <!-- Kolom JK (Uppercase & Diperkecil ke text-[11px]) -->
-            <div class="extra-col font-bold text-gray-600 text-[11px] uppercase">
+            <!-- Kolom JK (extra-col) -->
+            <div class="extra-col font-bold text-gray-600 text-xs">
               ${item.jk}
             </div>
 
-            <!-- Kolom Nilai Kategori (Uppercase & Diperkecil ke text-[11px], Nilai tetap Rata Kiri kecuali Halaman) -->
-            <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
+            <!-- Kolom Nilai Kategori (extra-col) -->
+            <div class="extra-col ${alignKategoriClass} font-semibold text-gray-700 text-xs whitespace-normal break-words">
               ${nilaiKategori}
             </div>
         </div>
@@ -255,13 +255,6 @@ function renderTable() {
 // 5. UPDATE HEADER & UI
 // ==========================================
 function updateHeaderKategori() {
-  // Header Daftar Murid dibuat Rata Tengah
-  const headerDaftar = document.getElementById("header-daftar-murid");
-  if (headerDaftar) {
-    headerDaftar.className = "text-center font-semibold";
-  }
-
-  // Header Kategori dibuat Rata Tengah
   const headerElem = document.getElementById("header-kategori");
   if (headerElem) {
     headerElem.innerText = filterState.kategori;
