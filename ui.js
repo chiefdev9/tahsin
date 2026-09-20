@@ -68,11 +68,22 @@ export function renderTable() {
 
   const keyKategori = filterState.kategori.toLowerCase();
 
-  if (keyKategori === "jilid" || keyKategori === "kelas") {
+  // Jalankan pengurutan jika kategori adalah Jilid, Kelas, ATAU Halaman
+  if (["jilid", "kelas", "halaman"].includes(keyKategori)) {
     filteredData = [...filteredData].sort((a, b) => {
       const valA = (a[keyKategori] || "").toString().trim();
       const valB = (b[keyKategori] || "").toString().trim();
 
+      // Jika kategorinya 'halaman', terapkan logika khusus evaluasi di paling atas
+      if (keyKategori === "halaman") {
+        const isEvalA = /^ev/i.test(valA) || /^evaluasi/i.test(valA);
+        const isEvalB = /^ev/i.test(valB) || /^evaluasi/i.test(valB);
+
+        if (isEvalA && !isEvalB) return -1; // A (eval) naik ke atas
+        if (!isEvalA && isEvalB) return 1; // B (eval) naik ke atas
+      }
+
+      // Pengurutan standar dari kecil ke besar (numeric)
       return valA.localeCompare(valB, undefined, {
         numeric: true,
         sensitivity: "base",
