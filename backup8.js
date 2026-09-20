@@ -1,3 +1,5 @@
+// SEBELUM JS DI PECAH JADI 4 BAGIAN : state.js, parser.js, ui.js, dan main.js
+
 // ==========================================
 // 1. URL CSV & STATE FILTER
 // ==========================================
