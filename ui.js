@@ -82,7 +82,7 @@ export function renderTable() {
 
   container.innerHTML = filteredData
     .map((item, index) => {
-      const nilaiKategori = item[keyKategori] || "-";
+      const isiHalaman = item[keyKategori] || "-";
 
       return `
         <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 items-center hover:bg-gray-50 transition-all border-b border-gray-100">
@@ -106,7 +106,7 @@ export function renderTable() {
 
             <!-- Kolom 4: Nilai Kategori (Rata Tengah) -->
             <div class="extra-col text-center px-1 font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words">
-              ${nilaiKategori}
+              ${isiHalaman}
             </div>
         </div>
       `;
@@ -157,7 +157,7 @@ export function updateSesiDisableState() {
 }
 
 
-// ui.js
+// FUNGSI MENAMBAHKAN GELAR SAAT USER MEMILIH NAMA GURU
 const GURU_PEREMPUAN = ["Vera", "Nining", "Dian", "Nurlaela", "Nur", "Yani", "Retno", "Tris"];
 
 export function updateDropdownTextAndCheckmarks(dropdownId, value) {
