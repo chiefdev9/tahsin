@@ -1,65 +1,69 @@
-// ==========================================
-// STATE & KONSTANTA GLOBAL
-// ==========================================
-
-export const CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRlkxd8dmQkdKm720azA9vog-nI06aVC8AX-c0gKMZx7Q2XBIbO31C4em-DKsSj7GdqtluPVfRYp4Gk/pub?gid=1481426139&single=true&output=csv";
-
-// URL Firebase Realtime Database
-export const FIREBASE_DB_URL =
-  "https://tahsinsmala-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-export const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
-
-export let muridList = [];
-
-// Ambil data filter terakhir dari localStorage (jika ada)
-const savedState = JSON.parse(localStorage.getItem("filterState")) || {};
-
-export let filterState = {
-  guru: savedState.guru || "Vera",
-  kategori: savedState.kategori || "Halaman",
-  sesi: savedState.sesi || "Pagi",
-};
-
-// ==========================================
-// HELPER & MUTATOR STATE
-// ==========================================
-
-export function setMuridList(newList) {
-  muridList = newList;
-}
-
-export function cleanNamaGuru(nama) {
-  if (!nama) return "";
-  return nama
-    .replace(/\b(ustaz|ustazah|ustadz|ustadzah|ust|ustz)\b/gi, "")
-    .trim();
-}
-
-/**
- * Format nama murid agar aman digunakan sebagai key Firebase
- * (Ubah ke huruf kecil dan bersihkan karakter terlarang: . # $ [ ])
- */
-export function formatFirebaseKey(nama) {
-  if (!nama) return "";
-  return nama
-    .toLowerCase()
-    .trim()
-    .replace(/[.#$\[\]]/g, "_");
-}
-
-// FUNGSI UPDATE FILTER STATE
-export function updateFilterState(key, value) {
-  if (key in filterState) {
-    filterState[key] = value;
+// ⚡ FUNGSI REAL-TIME LISTENER (FIREBASE SSE)
+export function listenFirebaseUpdates(onUpdateCallback) {
+  if (eventSource) {
+    eventSource.close();
   }
 
-  // Aturan Khusus: Guru khusus pagi otomatis mengunci sesi ke 'Pagi'
-  if (GURU_KHUSUS_PAGI.includes(filterState.guru)) {
-    filterState.sesi = "Pagi";
-  }
+  eventSource = new EventSource(`${FIREBASE_DB_URL}/murids.json`);
 
-  // Simpan kondisi filter paling baru ke localStorage
-  localStorage.setItem("filterState", JSON.stringify(filterState));
+  eventSource.addEventListener("put", (event) => {
+    try {
+      const parsedEvent = JSON.parse(event.data);
+      if (!parsedEvent || parsedEvent.data === undefined) return;
+
+      const path = parsedEvent.path; // Misal: "/" atau "/ahmad_n_" atau "/ahmad_n_/halaman"
+      const value = parsedEvent.data;
+
+      if (path === "/") {
+        // Sinkronisasi penuh saat koneksi pertama
+        if (value) {
+          Object.keys(value).forEach((key) => {
+            const item = value[key];
+            const murid = muridList.find(
+              (m) => formatFirebaseKey(m.nama) === key,
+            );
+            if (murid && item.halaman !== undefined) {
+              murid.halaman = item.halaman;
+            }
+          });
+        }
+      } else {
+        // Tangani update parsial dari HP (misal path: "/ahmad_n_" atau "/ahmad_n_/halaman")
+        const pathSegments = path.replace(/^\//, "").split("/");
+        const key = pathSegments[0];
+
+        const murid = muridList.find((m) => formatFirebaseKey(m.nama) === key);
+
+        if (murid) {
+          if (pathSegments.length === 1) {
+            // Path: /key (mengirim objek { nama, halaman })
+            if (
+              typeof value === "object" &&
+              value !== null &&
+              value.halaman !== undefined
+            ) {
+              murid.halaman = value.halaman;
+            }
+          } else if (pathSegments[1] === "halaman") {
+            // Path: /key/halaman (langsung bernilai string/angka)
+            murid.halaman = value;
+          }
+        }
+      }
+
+      // ⚡ RE-RENDER TABEL SECARA INSTAN DI LAPTOP
+      if (onUpdateCallback) {
+        onUpdateCallback();
+      }
+    } catch (err) {
+      console.error("❌ Gagal memproses pembaruan Firebase:", err);
+    }
+  });
+
+  eventSource.onerror = (err) => {
+    console.warn(
+      "⚠️ Koneksi real-time Firebase terputus/mencoba menghubungkan ulang...",
+      err,
+    );
+  };
 }

@@ -267,71 +267,24 @@ async function kirimHalamanKeFirebase(namaMurid, halamanBaru) {
   if (!namaMurid) return;
 
   const muridKey = formatFirebaseKey(namaMurid);
-  const targetUrl = `${FIREBASE_DB_URL}/murids/${muridKey}.json`;
+  // Target langsung ke properti /halaman.json dengan PUT
+  const targetUrl = `${FIREBASE_DB_URL}/murids/${muridKey}/halaman.json`;
 
   try {
     const response = await fetch(targetUrl, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        nama: namaMurid,
-        halaman: halamanBaru,
-      }),
+      body: JSON.stringify(halamanBaru),
     });
 
     if (response.ok) {
-      console.log(
-        `⚡ Halaman [${halamanBaru}] untuk ${namaMurid} tersimpan instan di Firebase!`,
-      );
+      console.log(`⚡ Halaman [${halamanBaru}] untuk ${namaMurid} tersimpan instan di Firebase!`);
     } else {
       console.error("❌ Gagal menyimpan ke Firebase:", response.statusText);
     }
   } catch (err) {
     console.error("❌ Gagal terhubung ke Firebase:", err);
   }
-}
-
-function attachEditableEvents() {
-  const editableCells = document.querySelectorAll(".editable-halaman");
-
-  editableCells.forEach((cell) => {
-    cell.addEventListener("focus", (e) => {
-      if (filterState.kategori.toLowerCase() !== "halaman") return;
-
-      const currentValue = e.target.innerText.trim();
-      e.target.dataset.original = currentValue;
-      e.target.innerText = "";
-    });
-
-    cell.addEventListener("blur", (e) => {
-      if (filterState.kategori.toLowerCase() !== "halaman") return;
-
-      const newValue = e.target.innerText.trim();
-      const originalValue = e.target.dataset.original || "-";
-      const namaMurid = e.target.getAttribute("data-nama");
-
-      if (newValue === "" || newValue === originalValue) {
-        e.target.innerText = originalValue;
-        return;
-      }
-
-      // Update di memori lokal browser saat ini
-      const muridTarget = muridList.find((m) => m.nama === namaMurid);
-      if (muridTarget) {
-        muridTarget["halaman"] = newValue;
-      }
-
-      // ⚡ Kirim perubahan secara instan ke Firebase!
-      kirimHalamanKeFirebase(namaMurid, newValue);
-    });
-
-    cell.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        e.target.blur();
-      }
-    });
-  });
 }
