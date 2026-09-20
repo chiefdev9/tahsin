@@ -279,6 +279,29 @@ export function selectOption(dropdownId, value) {
 }
 
 // 5. FITUR INLINE EDIT (KHUSUS KATEGORI HALAMAN)
+// 🚀 Fungsi Pengirim Halaman ke Google Sheets pusat
+async function kirimHalamanKeSheets(namaMurid, halamanBaru) {
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmpoIlTE-Ta03gwY6qUs1JVo9XpenSUvWtlnicFBiIc1w2cIwwGjz6a6g8dkh_X9zdQg/exec";
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        nama: namaMurid,
+        halaman: halamanBaru
+      })
+    });
+    console.log(`✅ Halaman ${halamanBaru} untuk ${namaMurid} berhasil terkirim ke Sheets.`);
+  } catch (err) {
+    console.error("❌ Gagal mengirim halaman ke Sheets:", err);
+  }
+}
+
+// FITUR INLINE EDIT (KHUSUS KATEGORI HALAMAN)
 function attachEditableEvents() {
   const editableCells = document.querySelectorAll(".editable-halaman");
 
@@ -308,10 +331,13 @@ function attachEditableEvents() {
         return;
       }
 
-      // Jika ada isi baru, perbarui data murid di memori
+      // Jika ada isi baru, perbarui data murid di memori lokal & kirim ke Sheets
       const muridTarget = muridList.find((m) => m.nama === namaMurid);
       if (muridTarget) {
         muridTarget["halaman"] = newValue;
+
+        // 📤 Kirim perubahan langsung ke Google Sheets di background
+        kirimHalamanKeSheets(namaMurid, newValue);
       }
     });
 
