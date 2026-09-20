@@ -80,9 +80,17 @@ export function renderTable() {
     });
   }
 
+  // Cek apakah kategori saat ini adalah 'halaman'
+  const isHalamanMode = keyKategori === "halaman";
+
   container.innerHTML = filteredData
     .map((item, index) => {
       const isiHalaman = item[keyKategori] || "-";
+
+      // Style khusus jika kolom bisa di-edit (hanya saat mode Halaman)
+      const editableClass = isHalamanMode
+        ? "editable-halaman cursor-pointer hover:bg-indigo-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded transition-all"
+        : "cursor-default";
 
       return `
         <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 items-center hover:bg-gray-50 transition-all border-b border-gray-100">
@@ -104,11 +112,11 @@ export function renderTable() {
               ${item.jk}
             </div>
 
-            <!-- Kolom 4: Nilai Kategori (Dapat Di-edit) -->
+            <!-- Kolom 4: Nilai Kategori (Hanya Halaman yang contenteditable=true) -->
             <div 
-              contenteditable="true"
+              contenteditable="${isHalamanMode}"
               data-nama="${item.nama}"
-              class="editable-halaman extra-col text-center px-1 font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words cursor-pointer hover:bg-indigo-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded transition-all">
+              class="extra-col text-center px-1 font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words ${editableClass}">
               ${isiHalaman}
             </div>
         </div>
@@ -116,8 +124,10 @@ export function renderTable() {
     })
     .join("");
 
-  // Jalankan listener agar sel yang baru di-render siap menerima input/edit
-  attachEditableEvents();
+  // Jalankan listener edit jika sedang dalam mode Halaman
+  if (isHalamanMode) {
+    attachEditableEvents();
+  }
 }
 
 // 3. UPDATE HEADER & DROPDOWN UI
