@@ -9,12 +9,21 @@ export const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
 
 export let muridList = [];
 
+// Ambil data filter terakhir dari localStorage (jika ada)
+const savedState = JSON.parse(localStorage.getItem("filterState")) || {};
+
 export let filterState = {
-  guru: "Vera",
-  kategori: "Halaman",
-  sesi: "Pagi",
+  guru: savedState.guru || "Vera",
+  kategori: savedState.kategori || "Halaman",
+  sesi: savedState.sesi || "Pagi",
 };
 
+export function updateFilterState(key, value) {
+  filterState[key] = value;
+  
+  // Simpan status terbaru ke localStorage setiap kali ada perubahan
+  localStorage.setItem("filterState", JSON.stringify(filterState));
+}
 // ==========================================
 // HELPER & MUTATOR STATE
 // ==========================================
