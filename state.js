@@ -18,12 +18,6 @@ export let filterState = {
   sesi: savedState.sesi || "Pagi",
 };
 
-export function updateFilterState(key, value) {
-  filterState[key] = value;
-  
-  // Simpan status terbaru ke localStorage setiap kali ada perubahan
-  localStorage.setItem("filterState", JSON.stringify(filterState));
-}
 // ==========================================
 // HELPER & MUTATOR STATE
 // ==========================================
@@ -39,6 +33,7 @@ export function cleanNamaGuru(nama) {
     .trim();
 }
 
+// FUNGSI UPDATE FILTER STATE (DIGABUNG JADI SATU)
 export function updateFilterState(key, value) {
   if (key in filterState) {
     filterState[key] = value;
@@ -48,4 +43,7 @@ export function updateFilterState(key, value) {
   if (GURU_KHUSUS_PAGI.includes(filterState.guru)) {
     filterState.sesi = "Pagi";
   }
+
+  // Simpan kondisi filter paling baru ke localStorage
+  localStorage.setItem("filterState", JSON.stringify(filterState));
 }
