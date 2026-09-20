@@ -278,25 +278,44 @@ export function selectOption(dropdownId, value) {
   closeAllDropdowns();
 }
 
-// 5. FITUR INLINE EDIT VALUE HALAMAN / KATEGORI
+// 5. FITUR INLINE EDIT (KHUSUS KATEGORI HALAMAN)
 function attachEditableEvents() {
   const editableCells = document.querySelectorAll(".editable-halaman");
 
   editableCells.forEach((cell) => {
-    // Tangkap perubahan nilai saat user klik di luar area (Blur)
-    cell.addEventListener("blur", (e) => {
-      const newValue = e.target.innerText.trim();
-      const namaMurid = e.target.getAttribute("data-nama");
-      const keyKategori = filterState.kategori.toLowerCase();
+    // 1. Saat diklik / fokus: Simpan nilai asli, lalu kosongkan teks
+    cell.addEventListener("focus", (e) => {
+      if (filterState.kategori.toLowerCase() !== "halaman") return;
 
-      // Cari data asli di muridList berdasarkan nama
+      const currentValue = e.target.innerText.trim();
+      // Simpan nilai lama di atribut dataset jika belum tersimpan
+      e.target.dataset.original = currentValue;
+      // Kosongkan tampilan agar user langsung mengetik
+      e.target.innerText = "";
+    });
+
+    // 2. Saat klik di area luar / lepas fokus
+    cell.addEventListener("blur", (e) => {
+      if (filterState.kategori.toLowerCase() !== "halaman") return;
+
+      const newValue = e.target.innerText.trim();
+      const originalValue = e.target.dataset.original || "-";
+      const namaMurid = e.target.getAttribute("data-nama");
+
+      // Jika user tidak mengetik apapun (kosong), kembalikan ke nilai awal
+      if (newValue === "") {
+        e.target.innerText = originalValue;
+        return;
+      }
+
+      // Jika ada isi baru, perbarui data murid di memori
       const muridTarget = muridList.find((m) => m.nama === namaMurid);
       if (muridTarget) {
-        muridTarget[keyKategori] = newValue;
+        muridTarget["halaman"] = newValue;
       }
     });
 
-    // Jika user tekan 'Enter', selesaikan edit (memicu event blur)
+    // 3. Saat tekan Enter: Selesaikan editan (pemicu event 'blur')
     cell.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
