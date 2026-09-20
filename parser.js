@@ -56,7 +56,9 @@ export function parseCSV(csvText) {
 
   let idxKelas = headers.findIndex((h) => h.includes("kelas"));
   let idxSaatIni = headers.findIndex((h) => h.includes("saat ini"));
-  let idxHalaman = headers.findIndex((h) => h.includes("halaman"));
+  let idxHalaman = headers.findIndex(
+    (h) => h.includes("halaman") || h.includes("hlm"),
+  );
   let idxSesi = headers.findIndex((h) => h.includes("sesi"));
   let idxJK = headers.findIndex((h) => h.includes("jk"));
 
