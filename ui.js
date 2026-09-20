@@ -311,9 +311,7 @@ function attachEditableEvents() {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
       const currentValue = e.target.innerText.trim();
-      // Simpan nilai lama di atribut dataset jika belum tersimpan
       e.target.dataset.original = currentValue;
-      // Kosongkan tampilan agar user langsung mengetik
       e.target.innerText = "";
     });
 
@@ -331,12 +329,15 @@ function attachEditableEvents() {
         return;
       }
 
-      // Jika ada isi baru, perbarui data murid di memori lokal & kirim ke Sheets
+      // Jika ada isi baru, perbarui data murid di memori lokal & simpan ke localStorage
       const muridTarget = muridList.find((m) => m.nama === namaMurid);
       if (muridTarget) {
         muridTarget["halaman"] = newValue;
 
-        // 📤 Kirim perubahan langsung ke Google Sheets di background
+        // 💾 1. Simpan ke localStorage perangkat guru
+        localStorage.setItem("muridDataCache", JSON.stringify(muridList));
+
+        // 📤 2. Kirim secara background ke Google Sheets pusat (doPost)
         kirimHalamanKeSheets(namaMurid, newValue);
       }
     });

@@ -100,6 +100,22 @@ export async function loadDataFromCSV(onSuccess, onError) {
     `;
   }
 
+  // 1. Ambil data editan lokal dari localStorage (jika ada)
+  const localCacheRaw = localStorage.getItem("muridDataCache");
+  let localCacheMap = {};
+  if (localCacheRaw) {
+    try {
+      const localCacheArr = JSON.parse(localCacheRaw);
+      localCacheArr.forEach((m) => {
+        if (m.nama && m.halaman) {
+          localCacheMap[m.nama.trim().toLowerCase()] = m.halaman;
+        }
+      });
+    } catch (e) {
+      console.error("Gagal membaca cache lokal:", e);
+    }
+  }
+
   try {
     const response = await fetch(CSV_URL);
     if (!response.ok)
@@ -108,18 +124,40 @@ export async function loadDataFromCSV(onSuccess, onError) {
     const csvText = await response.text();
     const parsedData = parseCSV(csvText);
 
-    setMuridList(parsedData);
+    // 2. Gabungkan (Merge): Terapkan editan lokal terbaru jika CSV masih memuat data lama
+    const mergedData = parsedData.map((item) => {
+      const namaKey = (item.nama || "").trim().toLowerCase();
+      if (
+        localCacheMap.hasOwnProperty(namaKey) &&
+        localCacheMap[namaKey] !== ""
+      ) {
+        // Gunakan halaman editan lokal dari HP guru
+        item.halaman = localCacheMap[namaKey];
+      }
+      return item;
+    });
+
+    // 3. Simpan state dan perbarui cache
+    setMuridList(mergedData);
+    localStorage.setItem("muridDataCache", JSON.stringify(mergedData));
 
     if (onSuccess) onSuccess();
   } catch (error) {
     console.error("Error loading CSV:", error);
-    if (container) {
-      container.innerHTML = `
-        <div class="p-8 text-center text-red-500 font-medium text-xs">
-          Gagal memuat data murid. Silakan periksa koneksi internet atau link CSV.
-        </div>
-      `;
+
+    // Fallback: Jika offline/gagal fetch CSV, tetap tampilkan data dari localStorage
+    if (localCacheRaw) {
+      setMuridList(JSON.parse(localCacheRaw));
+      if (onSuccess) onSuccess();
+    } else {
+      if (container) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-red-500 font-medium text-xs">
+            Gagal memuat data murid. Silakan periksa koneksi internet atau link CSV.
+          </div>
+        `;
+      }
+      if (onError) onError(error);
     }
-    if (onError) onError(error);
   }
 }
