@@ -45,7 +45,8 @@ export function toggleName(element) {
   }
 }
 
-// 2. RENDER TABEL
+
+// 2. RENDER TABEL - HARUSNYA BISA DI EDIT
 export function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
@@ -79,6 +80,46 @@ export function renderTable() {
       });
     });
   }
+
+  container.innerHTML = filteredData
+    .map((item, index) => {
+      const isiHalaman = item[keyKategori] || "-";
+
+      return `
+        <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 items-center hover:bg-gray-50 transition-all border-b border-gray-100">
+            <!-- Kolom 1: No (Rata Tengah) -->
+            <div class="text-center font-medium text-gray-400 text-xs">
+              ${index + 1}
+            </div>
+            
+            <!-- Kolom 2: Nama Murid (Isi Rata Kiri) -->
+            <div 
+              onclick="toggleName(this)" 
+              title="Klik untuk lihat nama lengkap"
+              class="name-col text-left px-1 font-semibold text-gray-800 text-[13px] leading-snug truncate cursor-pointer select-none">
+              ${item.nama}
+            </div>
+
+            <!-- Kolom 3: JK (Rata Tengah) -->
+            <div class="extra-col text-center font-bold text-gray-600 text-[11px] uppercase">
+              ${item.jk}
+            </div>
+
+            <!-- Kolom 4: Nilai Kategori (Dapat Di-edit) -->
+            <div 
+              contenteditable="true"
+              data-nama="${item.nama}"
+              class="editable-halaman extra-col text-center px-1 font-semibold text-gray-700 text-[11px] uppercase whitespace-normal break-words cursor-pointer hover:bg-indigo-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded transition-all">
+              ${isiHalaman}
+            </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  // Jalankan listener agar sel yang baru di-render siap menerima input/edit
+  attachEditableEvents();
+}
 
   container.innerHTML = filteredData
     .map((item, index) => {
@@ -243,3 +284,4 @@ export function selectOption(dropdownId, value) {
   updateUI();
   closeAllDropdowns();
 }
+
