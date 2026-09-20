@@ -40,26 +40,3 @@ export function updateFilterState(key, value) {
     filterState.sesi = "Pagi";
   }
 }
-
-/**
- * Memperbarui muridList hanya untuk kolom 'halaman' dari Firebase
- */
-export function mergeFirebaseData(firebaseUpdates) {
-  if (!firebaseUpdates || !Array.isArray(muridList) || muridList.length === 0)
-    return;
-
-  muridList.forEach((murid) => {
-    // Pastikan nama murid ada sebelum diolah
-    if (!murid || !murid.nama) return;
-
-    // Ubah nama murid ke format key yang aman di Firebase
-    const safeNamaKey = murid.nama.replace(/[.#$\[\]]/g, "_");
-    const patch = firebaseUpdates[safeNamaKey];
-
-    // Cek apakah ada patch dan nilai halaman khusus di Firebase
-    if (patch && typeof patch === "object" && patch.halaman !== undefined) {
-      // Hanya perbarui properti 'halaman'
-      murid.halaman = String(patch.halaman).trim();
-    }
-  });
-}

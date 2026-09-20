@@ -9,8 +9,6 @@ import {
   updateFilterState,
 } from "./state.js";
 
-import { saveHalamanToFirebase } from "./firebase-config.js";
-
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 export function toggleName(element) {
   const isTruncated = element.scrollWidth > element.clientWidth;
@@ -310,15 +308,10 @@ function attachEditableEvents() {
         return;
       }
 
-      // Jika ada isi baru, perbarui data murid di memori lokal
+      // Jika ada isi baru, perbarui data murid di memori
       const muridTarget = muridList.find((m) => m.nama === namaMurid);
       if (muridTarget) {
         muridTarget["halaman"] = newValue;
-
-        // Kirim perubahan halaman ke Firebase Realtime Database
-        saveHalamanToFirebase(namaMurid, newValue).catch((err) => {
-          console.error("Gagal simpan ke Firebase:", err);
-        });
       }
     });
 
