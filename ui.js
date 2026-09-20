@@ -156,8 +156,6 @@ export function updateSesiDisableState() {
   });
 }
 
-// ui.js
-const GURU_PEREMPUAN = ["Vera", "Nining", "Dian", "Nurlaela", "Yani", "Retno", "Tris"];
 
 // ui.js
 const GURU_PEREMPUAN = ["Vera", "Nining", "Dian", "Nurlaela", "Nur", "Yani", "Retno", "Tris"];
