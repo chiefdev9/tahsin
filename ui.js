@@ -156,24 +156,44 @@ export function updateSesiDisableState() {
   });
 }
 
+// ui.js
+const GURU_PEREMPUAN = ["Vera", "Nining", "Dian", "Nurlaela", "Yani", "Retno", "Tris"];
+
 export function updateDropdownTextAndCheckmarks(dropdownId, value) {
   const dropdown = document.getElementById(dropdownId);
   if (!dropdown) return;
 
+  // 1. TAMBAH GELAR & PENYESUAIAN NAMA KHUSUS
   const selectedText = dropdown.querySelector(".selected-text");
-  if (selectedText) selectedText.innerText = value;
+  if (selectedText) {
+    if (dropdownId === "dropdown-guru") {
+      // Pengecekan khusus untuk Nurlaela
+      let namaTampil = value === "Nurlaela" ? "Nur" : value;
+      let gelar = GURU_PEREMPUAN.includes(value) ? "Ustzh " : "Ust ";
+      
+      selectedText.innerText = `${gelar}${namaTampil}`;
+    } else {
+      selectedText.innerText = value;
+    }
+  }
 
+  // 2. COCOKKAN TEKS UNTUK CENTANG DI MODAL
   const options = dropdown.querySelectorAll(".option-btn");
   options.forEach((btn) => {
     const textSpan = btn.querySelector("span");
     const checkIcon = btn.querySelector(".check-icon");
 
-    if (textSpan && textSpan.innerText.trim() === value) {
-      if (checkIcon) checkIcon.classList.remove("hidden");
-      btn.classList.add("bg-indigo-50/80", "text-indigo-600");
-    } else {
-      if (checkIcon) checkIcon.classList.add("hidden");
-      btn.classList.remove("bg-indigo-50/80", "text-indigo-600");
+    if (textSpan) {
+      // Tetap mencocokkan value murni ("Nurlaela") dengan opsi di modal
+      const isMatch = textSpan.innerText.includes(value) || textSpan.innerText.includes("Nur");
+
+      if (isMatch) {
+        if (checkIcon) checkIcon.classList.remove("hidden");
+        btn.classList.add("bg-indigo-50/80", "text-indigo-600");
+      } else {
+        if (checkIcon) checkIcon.classList.add("hidden");
+        btn.classList.remove("bg-indigo-50/80", "text-indigo-600");
+      }
     }
   });
 }
