@@ -38,8 +38,8 @@ export function cleanNamaGuru(nama) {
 }
 
 /**
- * Clean & Sanitize Key Nama untuk Firebase
- * Mengubah nama menjadi huruf kecil dan mengganti karakter yang dilarang oleh Firebase Database
+ * Format nama murid agar aman digunakan sebagai key Firebase
+ * (Ubah ke huruf kecil dan bersihkan karakter terlarang: . # $ [ ])
  */
 export function formatFirebaseKey(nama) {
   if (!nama) return "";
@@ -49,7 +49,7 @@ export function formatFirebaseKey(nama) {
     .replace(/[.#$\[\]]/g, "_");
 }
 
-// FUNGSI UPDATE FILTER STATE (DIGABUNG JADI SATU)
+// FUNGSI UPDATE FILTER STATE
 export function updateFilterState(key, value) {
   if (key in filterState) {
     filterState[key] = value;

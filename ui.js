@@ -1,17 +1,15 @@
 // ==========================================
-// KONTROL UI, RENDER TABEL, & DROPDOWN (FIREBASE ENABLED)
+// KONTROL UI, RENDER TABEL, & DROPDOWN (FIREBASE REALTIME)
 // ==========================================
 
 import {
   muridList,
   filterState,
   GURU_KHUSUS_PAGI,
+  FIREBASE_DB_URL,
+  formatFirebaseKey,
   updateFilterState,
 } from "./state.js";
-
-// URL Firebase Realtime Database kamu
-const FIREBASE_DB_URL =
-  "https://tahsinsmala-default-rtdb.asia-southeast1.firebasedatabase.app";
 
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 export function toggleName(element) {
@@ -268,11 +266,7 @@ export function selectOption(dropdownId, value) {
 async function kirimHalamanKeFirebase(namaMurid, halamanBaru) {
   if (!namaMurid) return;
 
-  // Format key agar aman untuk Firebase (huruf kecil, ganti karakter khusus)
-  const muridKey = namaMurid
-    .toLowerCase()
-    .trim()
-    .replace(/[.#$\[\]]/g, "_");
+  const muridKey = formatFirebaseKey(namaMurid);
   const targetUrl = `${FIREBASE_DB_URL}/murids/${muridKey}.json`;
 
   try {

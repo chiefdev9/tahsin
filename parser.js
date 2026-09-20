@@ -1,12 +1,17 @@
 // ==========================================
-// PARSER CSV ROBUST & FETCH DATA (HYBRID FIREBASE)
+// PARSER CSV ROBUST & FETCH DATA (HYBRID FIREBASE REALTIME)
 // ==========================================
 
-import { CSV_URL, cleanNamaGuru, setMuridList } from "./state.js";
+import {
+  CSV_URL,
+  FIREBASE_DB_URL,
+  cleanNamaGuru,
+  formatFirebaseKey,
+  setMuridList,
+  muridList,
+} from "./state.js";
 
-// URL Firebase Realtime Database kamu
-const FIREBASE_DB_URL =
-  "https://tahsinsmala-default-rtdb.asia-southeast1.firebasedatabase.app";
+let eventSource = null;
 
 export function parseCSV(csvText) {
   const lines = [];
@@ -94,6 +99,72 @@ export function parseCSV(csvText) {
   return data;
 }
 
+// ⚡ FUNGSI REAL-TIME LISTENER (FIREBASE SSE)
+export function listenFirebaseUpdates(onUpdateCallback) {
+  // Tutup koneksi lama jika listener dipanggil ulang
+  if (eventSource) {
+    eventSource.close();
+  }
+
+  // Buka koneksi EventSource ke Firebase
+  eventSource = new EventSource(`${FIREBASE_DB_URL}/murids.json`);
+
+  eventSource.addEventListener("put", (event) => {
+    try {
+      const parsedEvent = JSON.parse(event.data);
+      if (!parsedEvent || parsedEvent.data === undefined) return;
+
+      const path = parsedEvent.path; // Misal: "/" atau "/ahmad_n_"
+      const value = parsedEvent.data;
+
+      if (path === "/") {
+        // Sinkronisasi penuh saat pertama kali terhubung
+        if (value) {
+          Object.keys(value).forEach((key) => {
+            const item = value[key];
+            const murid = muridList.find(
+              (m) => formatFirebaseKey(m.nama) === key,
+            );
+            if (murid && item.halaman !== undefined) {
+              murid.halaman = item.halaman;
+            }
+          });
+        }
+      } else {
+        // Pembaruan parsial saat ada 1 murid yang diubah dari HP lain
+        const key = path.replace("/", "").split("/")[0];
+        const murid = muridList.find((m) => formatFirebaseKey(m.nama) === key);
+
+        if (murid) {
+          if (
+            typeof value === "object" &&
+            value !== null &&
+            value.halaman !== undefined
+          ) {
+            murid.halaman = value.halaman;
+          } else if (path.endsWith("/halaman")) {
+            murid.halaman = value;
+          }
+        }
+      }
+
+      // Panggil callback untuk me-render ulang tabel jika ada perubahan
+      if (onUpdateCallback) {
+        onUpdateCallback();
+      }
+    } catch (err) {
+      console.error("❌ Gagal memproses pembaruan Firebase:", err);
+    }
+  });
+
+  eventSource.onerror = (err) => {
+    console.warn(
+      "⚠️ Koneksi real-time Firebase terputus/mencoba menghubungkan ulang...",
+      err,
+    );
+  };
+}
+
 export async function loadDataFromCSV(onSuccess, onError) {
   const container = document.getElementById("table-body");
   if (container) {
@@ -105,7 +176,7 @@ export async function loadDataFromCSV(onSuccess, onError) {
   }
 
   try {
-    // 1. Ambil data struktur utama (Nama, Guru, Kelas, Jilid) dari CSV Google Sheets
+    // 1. Ambil data struktur utama dari CSV Google Sheets
     const response = await fetch(CSV_URL);
     if (!response.ok)
       throw new Error("Gagal mengambil data dari Google Sheets");
@@ -113,7 +184,7 @@ export async function loadDataFromCSV(onSuccess, onError) {
     const csvText = await response.text();
     const parsedData = parseCSV(csvText);
 
-    // 2. Ambil data Halaman paling real-time dari Firebase
+    // 2. Ambil data Halaman awal dari Firebase
     let firebaseMap = {};
     try {
       const fbResponse = await fetch(`${FIREBASE_DB_URL}/murids.json`);
@@ -121,18 +192,15 @@ export async function loadDataFromCSV(onSuccess, onError) {
         firebaseMap = (await fbResponse.json()) || {};
       }
     } catch (fbErr) {
-      console.warn(
-        "⚠️ Gagal mengambil dari Firebase, fallback ke data CSV:",
-        fbErr,
-      );
+      console.warn("⚠️ Gagal mengambil data awal dari Firebase:", fbErr);
     }
 
-    // 3. Gabungkan (Merge): Timpa 'halaman' CSV dengan data real-time Firebase
+    // 3. Gabungkan data CSV & Firebase
     const mergedData = parsedData.map((item) => {
       if (item.nama) {
-        const key = item.nama.toLowerCase().replace(/[.#$\[\]]/g, "_");
+        const key = formatFirebaseKey(item.nama);
         if (firebaseMap[key] && firebaseMap[key].halaman !== undefined) {
-          item.halaman = firebaseMap[key].halaman; // Timpa dengan data Firebase terbaru
+          item.halaman = firebaseMap[key].halaman;
         }
       }
       return item;
