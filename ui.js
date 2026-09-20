@@ -153,7 +153,7 @@ export function renderTable() {
       `;
     })
     .join("");
-}
+
 
 // 3. UPDATE HEADER & DROPDOWN UI
 export function updateHeaderKategori() {
