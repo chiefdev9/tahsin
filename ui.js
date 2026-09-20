@@ -11,7 +11,9 @@ import {
   updateFilterState,
 } from "./state.js";
 
-// 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
+// Variable penanda agar tidak merender ulang saat pengguna sedang mengetik
+let isEditing = false;
+
 export function toggleName(element) {
   const isTruncated = element.scrollWidth > element.clientWidth;
   const isExpanded =
@@ -40,8 +42,10 @@ export function toggleName(element) {
   }
 }
 
-// 2. RENDER TABEL
 export function renderTable() {
+  // Cegah render ulang tabel jika pengguna sedang melakukan ketik/edit di sel mana pun
+  if (isEditing) return;
+
   const container = document.getElementById("table-body");
   if (!container) return;
 
@@ -95,12 +99,10 @@ export function renderTable() {
 
       return `
         <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 items-center hover:bg-gray-50 transition-all border-b border-gray-100">
-            <!-- Kolom 1: No -->
             <div class="text-center font-medium text-gray-400 text-xs">
               ${index + 1}
             </div>
             
-            <!-- Kolom 2: Nama Murid -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
@@ -108,12 +110,10 @@ export function renderTable() {
               ${item.nama}
             </div>
 
-            <!-- Kolom 3: JK -->
             <div class="extra-col text-center font-bold text-gray-600 text-[11px] uppercase">
               ${item.jk}
             </div>
 
-            <!-- Kolom 4: Nilai Kategori -->
             <div 
               contenteditable="${isHalamanMode}"
               data-nama="${item.nama}"
@@ -130,7 +130,6 @@ export function renderTable() {
   }
 }
 
-// 3. UPDATE HEADER & DROPDOWN UI
 export function updateHeaderKategori() {
   const headerDaftar = document.getElementById("header-daftar-murid");
   if (headerDaftar) {
@@ -226,7 +225,6 @@ export function updateUI() {
   renderTable();
 }
 
-// 4. KONTROL INTERAKSI DROPDOWN
 export function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
   if (!targetDropdown) return;
@@ -267,7 +265,6 @@ async function kirimHalamanKeFirebase(namaMurid, halamanBaru) {
   if (!namaMurid) return;
 
   const muridKey = formatFirebaseKey(namaMurid);
-  // Target langsung ke properti /halaman.json dengan PUT
   const targetUrl = `${FIREBASE_DB_URL}/murids/${muridKey}/halaman.json`;
 
   try {
@@ -280,11 +277,58 @@ async function kirimHalamanKeFirebase(namaMurid, halamanBaru) {
     });
 
     if (response.ok) {
-      console.log(`⚡ Halaman [${halamanBaru}] untuk ${namaMurid} tersimpan instan di Firebase!`);
+      console.log(
+        `⚡ Halaman [${halamanBaru}] untuk ${namaMurid} tersimpan instan di Firebase!`,
+      );
     } else {
       console.error("❌ Gagal menyimpan ke Firebase:", response.statusText);
     }
   } catch (err) {
     console.error("❌ Gagal terhubung ke Firebase:", err);
   }
+}
+
+function attachEditableEvents() {
+  const editableCells = document.querySelectorAll(".editable-halaman");
+
+  editableCells.forEach((cell) => {
+    cell.addEventListener("focus", (e) => {
+      if (filterState.kategori.toLowerCase() !== "halaman") return;
+
+      isEditing = true; // Kunci render ulang saat pengguna sedang mengedit
+      const currentValue = e.target.innerText.trim();
+      e.target.dataset.original = currentValue;
+      e.target.innerText = "";
+    });
+
+    cell.addEventListener("blur", (e) => {
+      if (filterState.kategori.toLowerCase() !== "halaman") return;
+
+      isEditing = false; // Buka kunci render
+      const newValue = e.target.innerText.trim();
+      const originalValue = e.target.dataset.original || "-";
+      const namaMurid = e.target.getAttribute("data-nama");
+
+      if (newValue === "" || newValue === originalValue) {
+        e.target.innerText = originalValue;
+        return;
+      }
+
+      // Update memori lokal
+      const muridTarget = muridList.find((m) => m.nama === namaMurid);
+      if (muridTarget) {
+        muridTarget["halaman"] = newValue;
+      }
+
+      // Kirim ke Firebase
+      kirimHalamanKeFirebase(namaMurid, newValue);
+    });
+
+    cell.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.target.blur();
+      }
+    });
+  });
 }

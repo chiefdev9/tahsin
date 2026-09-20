@@ -101,55 +101,68 @@ export function parseCSV(csvText) {
 
 // ⚡ FUNGSI REAL-TIME LISTENER (FIREBASE SSE)
 export function listenFirebaseUpdates(onUpdateCallback) {
-  // Tutup koneksi lama jika listener dipanggil ulang
   if (eventSource) {
     eventSource.close();
   }
 
-  // Buka koneksi EventSource ke Firebase
   eventSource = new EventSource(`${FIREBASE_DB_URL}/murids.json`);
 
   eventSource.addEventListener("put", (event) => {
     try {
+      if (!event.data) return;
       const parsedEvent = JSON.parse(event.data);
       if (!parsedEvent || parsedEvent.data === undefined) return;
 
-      const path = parsedEvent.path; // Misal: "/" atau "/ahmad_n_"
+      const path = parsedEvent.path;
       const value = parsedEvent.data;
 
+      let isChanged = false;
+
       if (path === "/") {
-        // Sinkronisasi penuh saat pertama kali terhubung
         if (value) {
           Object.keys(value).forEach((key) => {
             const item = value[key];
             const murid = muridList.find(
               (m) => formatFirebaseKey(m.nama) === key,
             );
-            if (murid && item.halaman !== undefined) {
+            if (
+              murid &&
+              item.halaman !== undefined &&
+              murid.halaman !== item.halaman
+            ) {
               murid.halaman = item.halaman;
+              isChanged = true;
             }
           });
         }
       } else {
-        // Pembaruan parsial saat ada 1 murid yang diubah dari HP lain
-        const key = path.replace("/", "").split("/")[0];
+        const pathSegments = path.replace(/^\//, "").split("/");
+        const key = pathSegments[0];
         const murid = muridList.find((m) => formatFirebaseKey(m.nama) === key);
 
         if (murid) {
-          if (
-            typeof value === "object" &&
-            value !== null &&
-            value.halaman !== undefined
-          ) {
-            murid.halaman = value.halaman;
-          } else if (path.endsWith("/halaman")) {
-            murid.halaman = value;
+          if (pathSegments.length === 1) {
+            if (
+              typeof value === "object" &&
+              value !== null &&
+              value.halaman !== undefined
+            ) {
+              if (murid.halaman !== value.halaman) {
+                murid.halaman = value.halaman;
+                isChanged = true;
+              }
+            }
+          } else if (pathSegments[1] === "halaman") {
+            if (murid.halaman !== value) {
+              murid.halaman = value;
+              isChanged = true;
+            }
           }
         }
       }
 
-      // Panggil callback untuk me-render ulang tabel jika ada perubahan
-      if (onUpdateCallback) {
+      // Hanya re-render UI jika benar-benar ada perubahan data
+      if (isChanged && onUpdateCallback) {
         onUpdateCallback();
       }
     } catch (err) {
@@ -176,7 +189,6 @@ export async function loadDataFromCSV(onSuccess, onError) {
   }
 
   try {
-    // 1. Ambil data struktur utama dari CSV Google Sheets
     const response = await fetch(CSV_URL);
     if (!response.ok)
       throw new Error("Gagal mengambil data dari Google Sheets");
@@ -184,7 +196,6 @@ export async function loadDataFromCSV(onSuccess, onError) {
     const csvText = await response.text();
     const parsedData = parseCSV(csvText);
 
-    // 2. Ambil data Halaman awal dari Firebase
     let firebaseMap = {};
     try {
       const fbResponse = await fetch(`${FIREBASE_DB_URL}/murids.json`);
@@ -195,7 +206,6 @@ export async function loadDataFromCSV(onSuccess, onError) {
       console.warn("⚠️ Gagal mengambil data awal dari Firebase:", fbErr);
     }
 
-    // 3. Gabungkan data CSV & Firebase
     const mergedData = parsedData.map((item) => {
       if (item.nama) {
         const key = formatFirebaseKey(item.nama);
@@ -206,7 +216,6 @@ export async function loadDataFromCSV(onSuccess, onError) {
       return item;
     });
 
-    // 4. Simpan ke State Utama
     setMuridList(mergedData);
 
     if (onSuccess) onSuccess();
