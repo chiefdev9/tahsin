@@ -159,15 +159,18 @@ export function updateSesiDisableState() {
 // ui.js
 const GURU_PEREMPUAN = ["Vera", "Nining", "Dian", "Nurlaela", "Yani", "Retno", "Tris"];
 
+// ui.js
+const GURU_PEREMPUAN = ["Vera", "Nining", "Dian", "Nurlaela", "Nur", "Yani", "Retno", "Tris"];
+
 export function updateDropdownTextAndCheckmarks(dropdownId, value) {
   const dropdown = document.getElementById(dropdownId);
   if (!dropdown) return;
 
-  // 1. TAMBAH GELAR & PENYESUAIAN NAMA KHUSUS
+  // 1. TAMBAH GELAR & PENYESUAIAN NAMA KHUSUS UNTUK TOMBOL UTAMA
   const selectedText = dropdown.querySelector(".selected-text");
   if (selectedText) {
     if (dropdownId === "dropdown-guru") {
-      // Pengecekan khusus untuk Nurlaela
+      // Jika value 'Nurlaela', tampilkan 'Nur' di tombol luar
       let namaTampil = value === "Nurlaela" ? "Nur" : value;
       let gelar = GURU_PEREMPUAN.includes(value) ? "Ustzh " : "Ust ";
       
@@ -184,8 +187,8 @@ export function updateDropdownTextAndCheckmarks(dropdownId, value) {
     const checkIcon = btn.querySelector(".check-icon");
 
     if (textSpan) {
-      // Tetap mencocokkan value murni ("Nurlaela") dengan opsi di modal
-      const isMatch = textSpan.innerText.includes(value) || textSpan.innerText.includes("Nur");
+      // Cukup cek apakah teks opsi mengandung 'value' murni (misal "Nurlaela")
+      const isMatch = textSpan.innerText.includes(value);
 
       if (isMatch) {
         if (checkIcon) checkIcon.classList.remove("hidden");
