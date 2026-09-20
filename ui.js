@@ -1,5 +1,5 @@
 // ==========================================
-// KONTROL UI, RENDER TABEL, & DROPDOWN
+// KONTROL UI, RENDER TABEL, & DROPDOWN (FIREBASE ENABLED)
 // ==========================================
 
 import {
@@ -9,6 +9,10 @@ import {
   updateFilterState,
 } from "./state.js";
 
+// URL Firebase Realtime Database kamu
+const FIREBASE_DB_URL =
+  "https://tahsinsmala-default-rtdb.asia-southeast1.firebasedatabase.app";
+
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 export function toggleName(element) {
   const isTruncated = element.scrollWidth > element.clientWidth;
@@ -16,7 +20,6 @@ export function toggleName(element) {
     element.classList.contains("whitespace-nowrap") &&
     !element.classList.contains("truncate");
 
-  // Jika nama tidak terpotong dan belum di-expand, jangan jalankan fungsi
   if (!isTruncated && !isExpanded) return;
 
   const parentRow = element.closest(".grid");
@@ -25,22 +28,16 @@ export function toggleName(element) {
   const extraCols = parentRow.querySelectorAll(".extra-col");
 
   if (!isExpanded) {
-    // Sembunyikan kolom ekstra (JK & Kategori)
     extraCols.forEach((col) => col.classList.add("hidden"));
-
-    // Ubah layout nama agar panjang & bisa di-scroll
     element.classList.remove("truncate");
     element.classList.add("col-span-3", "whitespace-nowrap", "overflow-x-auto");
   } else {
-    // Kembalikan ke tampilan terpotong semula
     element.classList.remove(
       "col-span-3",
       "whitespace-nowrap",
       "overflow-x-auto",
     );
     element.classList.add("truncate");
-
-    // Tampilkan kembali kolom ekstra
     extraCols.forEach((col) => col.classList.remove("hidden"));
   }
 }
@@ -68,22 +65,19 @@ export function renderTable() {
 
   const keyKategori = filterState.kategori.toLowerCase();
 
-  // Jalankan pengurutan jika kategori adalah Jilid, Kelas, ATAU Halaman
   if (["jilid", "kelas", "halaman"].includes(keyKategori)) {
     filteredData = [...filteredData].sort((a, b) => {
       const valA = (a[keyKategori] || "").toString().trim();
       const valB = (b[keyKategori] || "").toString().trim();
 
-      // Jika kategorinya 'halaman', terapkan logika khusus evaluasi di paling atas
       if (keyKategori === "halaman") {
         const isEvalA = /^ev/i.test(valA) || /^evaluasi/i.test(valA);
         const isEvalB = /^ev/i.test(valB) || /^evaluasi/i.test(valB);
 
-        if (isEvalA && !isEvalB) return -1; // A (eval) naik ke atas
-        if (!isEvalA && isEvalB) return 1; // B (eval) naik ke atas
+        if (isEvalA && !isEvalB) return -1;
+        if (!isEvalA && isEvalB) return 1;
       }
 
-      // Pengurutan standar dari kecil ke besar (numeric)
       return valA.localeCompare(valB, undefined, {
         numeric: true,
         sensitivity: "base",
@@ -91,26 +85,24 @@ export function renderTable() {
     });
   }
 
-  // Cek apakah kategori saat ini adalah 'halaman'
   const isHalamanMode = keyKategori === "halaman";
 
   container.innerHTML = filteredData
     .map((item, index) => {
       const isiHalaman = item[keyKategori] || "-";
 
-      // Style khusus jika kolom bisa di-edit (hanya saat mode Halaman)
       const editableClass = isHalamanMode
         ? "editable-halaman cursor-pointer hover:bg-indigo-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded transition-all"
         : "cursor-default";
 
       return `
         <div class="grid grid-cols-[7%_51%_10%_32%] py-3 px-2 items-center hover:bg-gray-50 transition-all border-b border-gray-100">
-            <!-- Kolom 1: No (Rata Tengah) -->
+            <!-- Kolom 1: No -->
             <div class="text-center font-medium text-gray-400 text-xs">
               ${index + 1}
             </div>
             
-            <!-- Kolom 2: Nama Murid (Isi Rata Kiri) -->
+            <!-- Kolom 2: Nama Murid -->
             <div 
               onclick="toggleName(this)" 
               title="Klik untuk lihat nama lengkap"
@@ -118,12 +110,12 @@ export function renderTable() {
               ${item.nama}
             </div>
 
-            <!-- Kolom 3: JK (Rata Tengah) -->
+            <!-- Kolom 3: JK -->
             <div class="extra-col text-center font-bold text-gray-600 text-[11px] uppercase">
               ${item.jk}
             </div>
 
-            <!-- Kolom 4: Nilai Kategori (Hanya Halaman yang contenteditable=true) -->
+            <!-- Kolom 4: Nilai Kategori -->
             <div 
               contenteditable="${isHalamanMode}"
               data-nama="${item.nama}"
@@ -135,7 +127,6 @@ export function renderTable() {
     })
     .join("");
 
-  // Jalankan listener edit jika sedang dalam mode Halaman
   if (isHalamanMode) {
     attachEditableEvents();
   }
@@ -183,7 +174,6 @@ export function updateSesiDisableState() {
   });
 }
 
-// FUNGSI MENAMBAHKAN GELAR SAAT USER MEMILIH NAMA GURU
 const GURU_PEREMPUAN = [
   "Vera",
   "Nining",
@@ -199,11 +189,9 @@ export function updateDropdownTextAndCheckmarks(dropdownId, value) {
   const dropdown = document.getElementById(dropdownId);
   if (!dropdown) return;
 
-  // 1. TAMBAH GELAR & PENYESUAIAN NAMA KHUSUS UNTUK TOMBOL UTAMA
   const selectedText = dropdown.querySelector(".selected-text");
   if (selectedText) {
     if (dropdownId === "dropdown-guru") {
-      // Jika value 'Nurlaela', tampilkan 'Nur' di tombol luar
       let namaTampil = value === "Nurlaela" ? "Nur" : value;
       let gelar = GURU_PEREMPUAN.includes(value) ? "Ustzh " : "Ust ";
       selectedText.innerText = `${gelar}${namaTampil}`;
@@ -212,14 +200,12 @@ export function updateDropdownTextAndCheckmarks(dropdownId, value) {
     }
   }
 
-  // 2. COCOKKAN TEKS UNTUK CENTANG DI MODAL
   const options = dropdown.querySelectorAll(".option-btn");
   options.forEach((btn) => {
     const textSpan = btn.querySelector("span");
     const checkIcon = btn.querySelector(".check-icon");
 
     if (textSpan) {
-      // Cukup cek apakah teks opsi mengandung 'value' murni (misal "Nurlaela")
       const isMatch = textSpan.innerText.includes(value);
 
       if (isMatch) {
@@ -278,35 +264,45 @@ export function selectOption(dropdownId, value) {
   closeAllDropdowns();
 }
 
-// 5. FITUR INLINE EDIT (KHUSUS KATEGORI HALAMAN)
-// 🚀 Fungsi Pengirim Halaman ke Google Sheets pusat
-async function kirimHalamanKeSheets(namaMurid, halamanBaru) {
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmpoIlTE-Ta03gwY6qUs1JVo9XpenSUvWtlnicFBiIc1w2cIwwGjz6a6g8dkh_X9zdQg/exec";
+// 5. FITUR INLINE EDIT (SINKRONISASI INSTAN KE FIREBASE)
+async function kirimHalamanKeFirebase(namaMurid, halamanBaru) {
+  if (!namaMurid) return;
+
+  // Format key agar aman untuk Firebase (huruf kecil, ganti karakter khusus)
+  const muridKey = namaMurid
+    .toLowerCase()
+    .trim()
+    .replace(/[.#$\[\]]/g, "_");
+  const targetUrl = `${FIREBASE_DB_URL}/murids/${muridKey}.json`;
 
   try {
-    await fetch(SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
+    const response = await fetch(targetUrl, {
+      method: "PATCH",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         nama: namaMurid,
-        halaman: halamanBaru
-      })
+        halaman: halamanBaru,
+      }),
     });
-    console.log(`✅ Halaman ${halamanBaru} untuk ${namaMurid} berhasil terkirim ke Sheets.`);
+
+    if (response.ok) {
+      console.log(
+        `⚡ Halaman [${halamanBaru}] untuk ${namaMurid} tersimpan instan di Firebase!`,
+      );
+    } else {
+      console.error("❌ Gagal menyimpan ke Firebase:", response.statusText);
+    }
   } catch (err) {
-    console.error("❌ Gagal mengirim halaman ke Sheets:", err);
+    console.error("❌ Gagal terhubung ke Firebase:", err);
   }
 }
 
-// FITUR INLINE EDIT (KHUSUS KATEGORI HALAMAN)
 function attachEditableEvents() {
   const editableCells = document.querySelectorAll(".editable-halaman");
 
   editableCells.forEach((cell) => {
-    // 1. Saat diklik / fokus: Simpan nilai asli, lalu kosongkan teks
     cell.addEventListener("focus", (e) => {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
@@ -315,7 +311,6 @@ function attachEditableEvents() {
       e.target.innerText = "";
     });
 
-    // 2. Saat klik di area luar / lepas fokus
     cell.addEventListener("blur", (e) => {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
@@ -323,26 +318,21 @@ function attachEditableEvents() {
       const originalValue = e.target.dataset.original || "-";
       const namaMurid = e.target.getAttribute("data-nama");
 
-      // Jika user tidak mengetik apapun (kosong), kembalikan ke nilai awal
-      if (newValue === "") {
+      if (newValue === "" || newValue === originalValue) {
         e.target.innerText = originalValue;
         return;
       }
 
-      // Jika ada isi baru, perbarui data murid di memori lokal & simpan ke localStorage
+      // Update di memori lokal browser saat ini
       const muridTarget = muridList.find((m) => m.nama === namaMurid);
       if (muridTarget) {
         muridTarget["halaman"] = newValue;
-
-        // 💾 1. Simpan ke localStorage perangkat guru
-        localStorage.setItem("muridDataCache", JSON.stringify(muridList));
-
-        // 📤 2. Kirim secara background ke Google Sheets pusat (doPost)
-        kirimHalamanKeSheets(namaMurid, newValue);
       }
+
+      // ⚡ Kirim perubahan secara instan ke Firebase!
+      kirimHalamanKeFirebase(namaMurid, newValue);
     });
 
-    // 3. Saat tekan Enter: Selesaikan editan (pemicu event 'blur')
     cell.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();

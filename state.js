@@ -5,6 +5,10 @@
 export const CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRlkxd8dmQkdKm720azA9vog-nI06aVC8AX-c0gKMZx7Q2XBIbO31C4em-DKsSj7GdqtluPVfRYp4Gk/pub?gid=1481426139&single=true&output=csv";
 
+// URL Firebase Realtime Database
+export const FIREBASE_DB_URL =
+  "https://tahsinsmala-default-rtdb.asia-southeast1.firebasedatabase.app";
+
 export const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
 
 export let muridList = [];
@@ -31,6 +35,18 @@ export function cleanNamaGuru(nama) {
   return nama
     .replace(/\b(ustaz|ustazah|ustadz|ustadzah|ust|ustz)\b/gi, "")
     .trim();
+}
+
+/**
+ * Clean & Sanitize Key Nama untuk Firebase
+ * Mengubah nama menjadi huruf kecil dan mengganti karakter yang dilarang oleh Firebase Database
+ */
+export function formatFirebaseKey(nama) {
+  if (!nama) return "";
+  return nama
+    .toLowerCase()
+    .trim()
+    .replace(/[.#$\[\]]/g, "_");
 }
 
 // FUNGSI UPDATE FILTER STATE (DIGABUNG JADI SATU)

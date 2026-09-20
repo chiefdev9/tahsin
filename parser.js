@@ -1,8 +1,12 @@
 // ==========================================
-// PARSER CSV ROBUST & FETCH DATA
+// PARSER CSV ROBUST & FETCH DATA (HYBRID FIREBASE)
 // ==========================================
 
 import { CSV_URL, cleanNamaGuru, setMuridList } from "./state.js";
+
+// URL Firebase Realtime Database kamu
+const FIREBASE_DB_URL =
+  "https://tahsinsmala-default-rtdb.asia-southeast1.firebasedatabase.app";
 
 export function parseCSV(csvText) {
   const lines = [];
@@ -100,23 +104,8 @@ export async function loadDataFromCSV(onSuccess, onError) {
     `;
   }
 
-  // 1. Ambil data editan lokal dari localStorage (jika ada)
-  const localCacheRaw = localStorage.getItem("muridDataCache");
-  let localCacheMap = {};
-  if (localCacheRaw) {
-    try {
-      const localCacheArr = JSON.parse(localCacheRaw);
-      localCacheArr.forEach((m) => {
-        if (m.nama && m.halaman) {
-          localCacheMap[m.nama.trim().toLowerCase()] = m.halaman;
-        }
-      });
-    } catch (e) {
-      console.error("Gagal membaca cache lokal:", e);
-    }
-  }
-
   try {
+    // 1. Ambil data struktur utama (Nama, Guru, Kelas, Jilid) dari CSV Google Sheets
     const response = await fetch(CSV_URL);
     if (!response.ok)
       throw new Error("Gagal mengambil data dari Google Sheets");
@@ -124,40 +113,45 @@ export async function loadDataFromCSV(onSuccess, onError) {
     const csvText = await response.text();
     const parsedData = parseCSV(csvText);
 
-    // 2. Gabungkan (Merge): Terapkan editan lokal terbaru jika CSV masih memuat data lama
+    // 2. Ambil data Halaman paling real-time dari Firebase
+    let firebaseMap = {};
+    try {
+      const fbResponse = await fetch(`${FIREBASE_DB_URL}/murids.json`);
+      if (fbResponse.ok) {
+        firebaseMap = (await fbResponse.json()) || {};
+      }
+    } catch (fbErr) {
+      console.warn(
+        "⚠️ Gagal mengambil dari Firebase, fallback ke data CSV:",
+        fbErr,
+      );
+    }
+
+    // 3. Gabungkan (Merge): Timpa 'halaman' CSV dengan data real-time Firebase
     const mergedData = parsedData.map((item) => {
-      const namaKey = (item.nama || "").trim().toLowerCase();
-      if (
-        localCacheMap.hasOwnProperty(namaKey) &&
-        localCacheMap[namaKey] !== ""
-      ) {
-        // Gunakan halaman editan lokal dari HP guru
-        item.halaman = localCacheMap[namaKey];
+      if (item.nama) {
+        const key = item.nama.toLowerCase().replace(/[.#$\[\]]/g, "_");
+        if (firebaseMap[key] && firebaseMap[key].halaman !== undefined) {
+          item.halaman = firebaseMap[key].halaman; // Timpa dengan data Firebase terbaru
+        }
       }
       return item;
     });
 
-    // 3. Simpan state dan perbarui cache
+    // 4. Simpan ke State Utama
     setMuridList(mergedData);
-    localStorage.setItem("muridDataCache", JSON.stringify(mergedData));
 
     if (onSuccess) onSuccess();
   } catch (error) {
-    console.error("Error loading CSV:", error);
+    console.error("Error loading data:", error);
 
-    // Fallback: Jika offline/gagal fetch CSV, tetap tampilkan data dari localStorage
-    if (localCacheRaw) {
-      setMuridList(JSON.parse(localCacheRaw));
-      if (onSuccess) onSuccess();
-    } else {
-      if (container) {
-        container.innerHTML = `
-          <div class="p-8 text-center text-red-500 font-medium text-xs">
-            Gagal memuat data murid. Silakan periksa koneksi internet atau link CSV.
-          </div>
-        `;
-      }
-      if (onError) onError(error);
+    if (container) {
+      container.innerHTML = `
+        <div class="p-8 text-center text-red-500 font-medium text-xs">
+          Gagal memuat data murid. Silakan periksa koneksi internet.
+        </div>
+      `;
     }
+    if (onError) onError(error);
   }
 }
