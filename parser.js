@@ -100,6 +100,9 @@ export function parseCSV(csvText) {
 // ==========================================
 // FUNGSI 2: AUTO-SYNC SUPABASE & LOAD DATA
 // ==========================================
+// ==========================================
+// FUNGSI 2: AUTO-SYNC SUPABASE & LOAD DATA
+// ==========================================
 export async function loadDataFromCSV(onSuccess, onError) {
   const container = document.getElementById("table-body");
   if (container) {
@@ -120,71 +123,57 @@ export async function loadDataFromCSV(onSuccess, onError) {
     const parsedData = parseCSV(csvText);
 
     // Ambil daftar nama unik dari CSV sebagai acuan master data utama
-    const namaCsvList = parsedData
-      .map((m) => m.nama)
-      .filter((nama) => nama !== "");
+    const namaCsvList = parsedData.map(m => m.nama).filter(nama => nama !== "");
 
     // 2. Ambil data progres yang sudah ada di database Supabase
     const { data: supabaseData, error: fetchError } = await supabase
-      .from("progres_murid")
-      .select("Nama Siswa, Hlm Saat Ini");
+      .from('progres_murid')
+      .select('nama_siswa, hlm_saat_ini');
 
     if (fetchError) throw fetchError;
 
     // Buat kamus (Map) untuk pencarian data halaman dari Supabase dengan cepat
     const supabaseMap = {};
     if (supabaseData) {
-      supabaseData.forEach((row) => {
-        supabaseMap[row["Nama Siswa"]] = row["Hlm Saat Ini"];
+      supabaseData.forEach(row => {
+        supabaseMap[row["nama_siswa"]] = row["hlm_saat_ini"];
       });
     }
 
-    const supabaseNamaList = supabaseData
-      ? supabaseData.map((row) => row["Nama Siswa"])
-      : [];
+    const supabaseNamaList = supabaseData ? supabaseData.map(row => row["nama_siswa"]) : [];
 
     // 3. Penjaga Gerbang Awal: Deteksi dan masukkan Murid Baru ke Supabase
     const muridBaru = namaCsvList
-      .filter((nama) => !supabaseNamaList.includes(nama))
-      .map((nama) => ({ "Nama Siswa": nama, "Hlm Saat Ini": "-" }));
+      .filter(nama => !supabaseNamaList.includes(nama))
+      .map(nama => ({ "nama_siswa": nama, "hlm_saat_ini": "-" }));
 
     if (muridBaru.length > 0) {
       const { error: insertError } = await supabase
-        .from("progres_murid")
+        .from('progres_murid')
         .insert(muridBaru);
-
-      if (insertError)
-        console.error("Gagal menambahkan murid baru ke Supabase:", insertError);
+      
+      if (insertError) console.error("Gagal menambahkan murid baru ke Supabase:", insertError);
     }
 
     // 4. Penjaga Gerbang Pembersihan: Hapus baris murid yang sudah tidak aktif/dihapus dari CSV
-    const muridHapus = supabaseNamaList.filter(
-      (nama) => !namaCsvList.includes(nama),
-    );
+    const muridHapus = supabaseNamaList.filter(nama => !namaCsvList.includes(nama));
 
     if (muridHapus.length > 0) {
       const { error: deleteError } = await supabase
-        .from("progres_murid")
+        .from('progres_murid')
         .delete()
-        .in("Nama Siswa", muridHapus);
+        .in('nama_siswa', muridHapus);
 
-      if (deleteError)
-        console.error(
-          "Gagal membersihkan data murid lama di Supabase:",
-          deleteError,
-        );
+      if (deleteError) console.error("Gagal membersihkan data murid lama di Supabase:", deleteError);
     }
 
     // 5. Gabungkan data halaman dari Supabase ke dalam objek murid yang akan ditampilkan di aplikasi
-    const finalData = parsedData.map((murid) => {
+    const finalData = parsedData.map(murid => {
       return {
         ...murid,
-        // Jika data halaman di Supabase tersedia, gunakan itu. Jika tidak, fallback ke "-"
-        halaman:
-          supabaseMap[murid.nama] !== undefined &&
-          supabaseMap[murid.nama] !== null
-            ? supabaseMap[murid.nama]
-            : "-",
+        halaman: supabaseMap[murid.nama] !== undefined && supabaseMap[murid.nama] !== null 
+                 ? supabaseMap[murid.nama] 
+                 : "-"
       };
     });
 

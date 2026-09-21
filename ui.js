@@ -326,8 +326,8 @@ function attachEditableEvents() {
       try {
         const { error } = await supabase
           .from("progres_murid")
-          .update({ "Hlm Saat Ini": newValue })
-          .eq("Nama Siswa", namaMurid);
+          .update({ hlm_saat_ini: newValue })
+          .eq("nama_siswa", namaMurid);
 
         if (error) {
           console.error("Gagal menyinkronkan perubahan ke Supabase:", error);
