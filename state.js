@@ -9,14 +9,38 @@ export const GURU_KHUSUS_PAGI = ["Retno", "Yani", "Tris"];
 
 export let muridList = [];
 
+// ==========================================
+// HELPER PENYIMPANAN LOKAL (LOCAL STORAGE)
+// ==========================================
+export function saveLastState(kunci, nilai) {
+  try {
+    localStorage.setItem(`tahsin_${kunci}`, JSON.stringify(nilai));
+  } catch (e) {
+    console.error("Gagal menyimpan state lokal:", e);
+  }
+}
+
+export function loadLastState(kunci, nilaiDefault) {
+  try {
+    const saved = localStorage.getItem(`tahsin_${kunci}`);
+    return saved ? JSON.parse(saved) : nilaiDefault;
+  } catch (e) {
+    console.error("Gagal membaca state lokal:", e);
+    return nilaiDefault;
+  }
+}
+
+// ==========================================
+// FILTER STATE (DENGAN MEMULIHKAN POSISI TERAKHIR)
+// ==========================================
 export let filterState = {
-  guru: "Vera",
-  kategori: "Halaman",
-  sesi: "Pagi",
+  guru: loadLastState("guru", "Vera"),
+  kategori: loadLastState("kategori", "Halaman"),
+  sesi: loadLastState("sesi", "Pagi"),
 };
 
 // ==========================================
-// HELPER & MUTATOR STATE
+// MUTATOR STATE
 // ==========================================
 
 export function setMuridList(newList) {
@@ -33,10 +57,13 @@ export function cleanNamaGuru(nama) {
 export function updateFilterState(key, value) {
   if (key in filterState) {
     filterState[key] = value;
+    // Simpan pilihan ke memori lokal secara otomatis
+    saveLastState(key, value);
   }
 
   // Aturan Khusus: Guru khusus pagi otomatis mengunci sesi ke 'Pagi'
   if (GURU_KHUSUS_PAGI.includes(filterState.guru)) {
     filterState.sesi = "Pagi";
+    saveLastState("sesi", "Pagi");
   }
 }
