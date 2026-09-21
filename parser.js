@@ -190,9 +190,13 @@ export async function loadDataFromCSV(onSuccess, onError) {
 // ==========================================
 // FUNGSI 3: REAL-TIME LISTENER SUPABASE
 // ==========================================
+// ==========================================
+// FUNGSI 3: REAL-TIME LISTENER SUPABASE (DENGAN AUTO-RECONNECT)
+// ==========================================
 export function initRealtimeSync() {
-  supabase
-    .channel("public:progres_murid")
+  const channel = supabase.channel("public:progres_murid");
+
+  channel
     .on(
       "postgres_changes",
       { event: "UPDATE", schema: "public", table: "progres_murid" },
@@ -201,17 +205,23 @@ export function initRealtimeSync() {
         const namaDiubah = updatedRow.nama_siswa;
         const halamanBaru = updatedRow.hlm_saat_ini;
 
-        // Cari murid di memori lokal dan update seketika
         const targetMurid = muridList.find((m) => m.nama === namaDiubah);
         if (targetMurid) {
           targetMurid.halaman = halamanBaru;
 
-          // Render ulang tabel otomatis tanpa refresh
           if (typeof renderTable === "function") {
             renderTable();
           }
         }
-      },
+      }
     )
-    .subscribe();
+    .subscribe((status) => {
+      // Jika koneksi terputus di HP (misal layar mati/pindah jaringan), coba hubungkan kembali
+      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        console.warn("Koneksi Realtime terputus, mencoba menghubungkan ulang...");
+        setTimeout(() => {
+          channel.subscribe();
+        }, 3000);
+      }
+    });
 }
