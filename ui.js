@@ -239,6 +239,7 @@ export function updateUI() {
   updateDropdownTextAndCheckmarks("dropdown-guru", filterState.guru);
   updateDropdownTextAndCheckmarks("dropdown-kategori", filterState.kategori);
   updateDropdownTextAndCheckmarks("dropdown-waktu", filterState.sesi);
+  updateRuangDisplay(filterState.guru, filterState.sesi);
   renderTable();
 }
 
@@ -323,4 +324,49 @@ function attachEditableEvents() {
       }
     });
   });
+}
+
+// 6. INFORMASI RUANGAN OTOMATIS
+// Kamus pemetaan berdasarkan string yang tampil/dipilih di dropdown
+const PEMETAAN_RUANG = {
+  Pagi: {
+    Yani: "Mecca",
+    Fahmi: "Medina",
+    Nurlaela: "Alexandria",
+    Retno: "Cairo",
+    Dian: "Aula",
+    Nining: "Granada",
+    Yoga: "Aula",
+    Vera: "Mushola",
+    Syukron: "Cordoba",
+    Tris: "Mushola",
+  },
+  Siang: {
+    Fahmi: "Fez",
+    Nurlaela: "Istanbul",
+    Dian: "Marrakech",
+    Nining: "Damascus",
+    Yoga: "Urfa",
+    Vera: "Komputer",
+    Syukron: "Aleppo",
+  },
+};
+
+export function updateRuangDisplay(ustaz, sesi) {
+  const spanRuang = document.querySelector(".bg-indigo-50\\/80 span");
+  if (!spanRuang) return;
+
+  // Normalisasi teks sesi untuk mencocokkan key kamus ("Pagi" atau "Siang")
+  const sesiKey = sesi
+    ? sesi.charAt(0).toUpperCase() + sesi.slice(1).toLowerCase()
+    : "Pagi";
+
+  // Ambil data ruangan berdasarkan sesi yang aktif
+  const ruangPerSesi = PEMETAAN_RUANG[sesiKey] || PEMETAAN_RUANG["Pagi"];
+
+  // Cari nama ruangan berdasarkan nama pendek guru (default ke "ALEXANDRIA" jika tidak ketemu)
+  const namaRuang = ruangPerSesi[ustaz] || "-";
+
+  // Perbarui teks pada elemen HTML secara dinamis
+  spanRuang.innerText = `RUANG : ${namaRuang.toUpperCase()}`;
 }
