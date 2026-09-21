@@ -2,7 +2,7 @@
 // MAIN ENTRY POINT & INISIALISASI
 // ==========================================
 
-import { loadDataFromCSV } from "./parser.js";
+import { loadDataFromCSV, initRealtimeSync } from "./parser.js";
 import {
   updateUI,
   toggleDropdown,
@@ -23,5 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDataFromCSV(() => {
     // Callback ketika data CSV berhasil dimuat dan diparse
     updateUI();
+
+    // Nyalakan pendengar perubahan real-time dari Supabase
+    initRealtimeSync();
   });
 });
