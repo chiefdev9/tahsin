@@ -8,8 +8,11 @@ import {
   GURU_KHUSUS_PAGI,
   updateFilterState,
 } from "./state.js";
+import { supabase } from "./supabaseClient.js"; // Mengimpor koneksi Supabase untuk fitur simpan otomatis saat edit
 
+// ==========================================
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
+// ==========================================
 export function toggleName(element) {
   const isTruncated = element.scrollWidth > element.clientWidth;
   const isExpanded =
@@ -45,7 +48,9 @@ export function toggleName(element) {
   }
 }
 
+// ==========================================
 // 2. RENDER TABEL
+// ==========================================
 export function renderTable() {
   const container = document.getElementById("table-body");
   if (!container) return;
@@ -141,7 +146,9 @@ export function renderTable() {
   }
 }
 
+// ==========================================
 // 3. UPDATE HEADER & DROPDOWN UI
+// ==========================================
 export function updateHeaderKategori() {
   const headerDaftar = document.getElementById("header-daftar-murid");
   if (headerDaftar) {
@@ -203,7 +210,6 @@ export function updateDropdownTextAndCheckmarks(dropdownId, value) {
   const selectedText = dropdown.querySelector(".selected-text");
   if (selectedText) {
     if (dropdownId === "dropdown-guru") {
-      // Jika value 'Nurlaela', tampilkan 'Nur' di tombol luar
       let namaTampil = value === "Nurlaela" ? "Nur" : value;
       let gelar = GURU_PEREMPUAN.includes(value) ? "Ustzh " : "Ust ";
       selectedText.innerText = `${gelar}${namaTampil}`;
@@ -219,7 +225,6 @@ export function updateDropdownTextAndCheckmarks(dropdownId, value) {
     const checkIcon = btn.querySelector(".check-icon");
 
     if (textSpan) {
-      // Cukup cek apakah teks opsi mengandung 'value' murni (misal "Nurlaela")
       const isMatch = textSpan.innerText.includes(value);
 
       if (isMatch) {
@@ -243,7 +248,9 @@ export function updateUI() {
   renderTable();
 }
 
+// ==========================================
 // 4. KONTROL INTERAKSI DROPDOWN
+// ==========================================
 export function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
   if (!targetDropdown) return;
@@ -279,7 +286,9 @@ export function selectOption(dropdownId, value) {
   closeAllDropdowns();
 }
 
-// 5. FITUR INLINE EDIT (KHUSUS KATEGORI HALAMAN)
+// ==========================================
+// 5. FITUR INLINE EDIT & SYNC KE SUPABASE (KHUSUS KATEGORI HALAMAN)
+// ==========================================
 function attachEditableEvents() {
   const editableCells = document.querySelectorAll(".editable-halaman");
 
@@ -289,30 +298,42 @@ function attachEditableEvents() {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
       const currentValue = e.target.innerText.trim();
-      // Simpan nilai lama di atribut dataset jika belum tersimpan
       e.target.dataset.original = currentValue;
-      // Kosongkan tampilan agar user langsung mengetik
       e.target.innerText = "";
     });
 
-    // 2. Saat klik di area luar / lepas fokus
-    cell.addEventListener("blur", (e) => {
+    // 2. Saat klik di luar / lepas fokus (blur): Perbarui state memori dan simpan ke Supabase
+    cell.addEventListener("blur", async (e) => {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
       const newValue = e.target.innerText.trim();
       const originalValue = e.target.dataset.original || "-";
       const namaMurid = e.target.getAttribute("data-nama");
 
-      // Jika user tidak mengetik apapun (kosong), kembalikan ke nilai awal
+      // Jika user tidak mengetik apapun, kembalikan ke nilai awal
       if (newValue === "") {
         e.target.innerText = originalValue;
         return;
       }
 
-      // Jika ada isi baru, perbarui data murid di memori
+      // Perbarui data halaman di memori lokal (state)
       const muridTarget = muridList.find((m) => m.nama === namaMurid);
       if (muridTarget) {
         muridTarget["halaman"] = newValue;
+      }
+
+      // Kirim pembaruan data secara otomatis ke tabel Supabase (Multi-perangkat sync)
+      try {
+        const { error } = await supabase
+          .from("progres_murid")
+          .update({ "Hlm Saat Ini": newValue })
+          .eq("Nama Siswa", namaMurid);
+
+        if (error) {
+          console.error("Gagal menyinkronkan perubahan ke Supabase:", error);
+        }
+      } catch (err) {
+        console.error("Kesalahan jaringan saat menyimpan ke Supabase:", err);
       }
     });
 
@@ -326,8 +347,9 @@ function attachEditableEvents() {
   });
 }
 
+// ==========================================
 // 6. INFORMASI RUANGAN OTOMATIS
-// Kamus pemetaan berdasarkan string yang tampil/dipilih di dropdown
+// ==========================================
 const PEMETAAN_RUANG = {
   Pagi: {
     Yani: "Mecca",
@@ -356,17 +378,12 @@ export function updateRuangDisplay(ustaz, sesi) {
   const spanRuang = document.querySelector(".bg-indigo-50\\/80 span");
   if (!spanRuang) return;
 
-  // Normalisasi teks sesi untuk mencocokkan key kamus ("Pagi" atau "Siang")
   const sesiKey = sesi
     ? sesi.charAt(0).toUpperCase() + sesi.slice(1).toLowerCase()
     : "Pagi";
 
-  // Ambil data ruangan berdasarkan sesi yang aktif
   const ruangPerSesi = PEMETAAN_RUANG[sesiKey] || PEMETAAN_RUANG["Pagi"];
-
-  // Cari nama ruangan berdasarkan nama pendek guru (default ke "ALEXANDRIA" jika tidak ketemu)
   const namaRuang = ruangPerSesi[ustaz] || "-";
 
-  // Perbarui teks pada elemen HTML secara dinamis
   spanRuang.innerText = `RUANG : ${namaRuang.toUpperCase()}`;
 }
