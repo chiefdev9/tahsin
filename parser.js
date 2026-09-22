@@ -100,16 +100,9 @@ export function parseCSV(csvText) {
 // ==========================================
 export async function loadDataFromCSV(onSuccess, onError) {
   const container = document.getElementById("table-body");
-  if (container) {
-    container.innerHTML = `
-      <div class="p-8 text-center text-gray-400 font-medium text-xs">
-        Memuat dan menyinkronkan data murid...
-      </div>
-    `;
-  }
 
   try {
-    // 1. Ambil data dari CSV / Google Sheets
+    // 1. Ambil data dari CSV / Google Sheets (biasanya ini cepat)
     const response = await fetch(CSV_URL);
     if (!response.ok)
       throw new Error("Gagal mengambil data dari Google Sheets");
@@ -117,65 +110,84 @@ export async function loadDataFromCSV(onSuccess, onError) {
     const csvText = await response.text();
     const parsedData = parseCSV(csvText);
 
-    const namaCsvList = parsedData
-      .map((m) => m.nama)
-      .filter((nama) => nama !== "");
-
-    // 2. Ambil data progres dari database Supabase
-    const { data: supabaseData, error: fetchError } = await supabase
-      .from("progres_murid")
-      .select("nama_siswa, hlm_saat_ini");
-
-    if (fetchError) throw fetchError;
-
-    const supabaseMap = {};
-    if (supabaseData) {
-      supabaseData.forEach((row) => {
-        supabaseMap[row["nama_siswa"]] = row["hlm_saat_ini"];
-      });
-    }
-
-    const supabaseNamaList = supabaseData
-      ? supabaseData.map((row) => row["nama_siswa"])
-      : [];
-
-    // 3. Masukkan murid baru dari CSV ke Supabase jika belum ada
-    const muridBaru = namaCsvList
-      .filter((nama) => !supabaseNamaList.includes(nama))
-      .map((nama) => ({ nama_siswa: nama, hlm_saat_ini: "-" }));
-
-    if (muridBaru.length > 0) {
-      await supabase.from("progres_murid").insert(muridBaru);
-    }
-
-    // 4. Hapus data murid di Supabase jika sudah tidak ada di CSV
-    const muridHapus = supabaseNamaList.filter(
-      (nama) => !namaCsvList.includes(nama),
-    );
-    if (muridHapus.length > 0) {
-      await supabase
-        .from("progres_murid")
-        .delete()
-        .in("nama_siswa", muridHapus);
-    }
-
-    // 5. Gabungkan data halaman dari Supabase ke state aplikasi
-    const finalData = parsedData.map((murid) => {
-      return {
-        ...murid,
-        halaman:
-          supabaseMap[murid.nama] !== undefined &&
-          supabaseMap[murid.nama] !== null
-            ? supabaseMap[murid.nama]
-            : "-",
-      };
-    });
-
-    setMuridList(finalData);
-
+    // Tampilkan data ke UI SEGERA agar pengguna tidak menunggu lama menatap spinner
+    setMuridList(parsedData);
     if (onSuccess) onSuccess();
+
+    // 2. Jalankan sinkronisasi Supabase di latar belakang (Background Sync)
+    // Menggunakan setTimeout/Promise agar tidak memblokir render utama
+    setTimeout(async () => {
+      try {
+        const namaCsvList = parsedData
+          .map((m) => m.nama)
+          .filter((n) => n !== "");
+
+        const { data: supabaseData, error: fetchError } = await supabase
+          .from("progres_murid")
+          .select("nama_siswa, hlm_saat_ini");
+
+        if (fetchError) throw fetchError;
+
+        const supabaseMap = {};
+        const supabaseNamaList = [];
+        if (supabaseData) {
+          supabaseData.forEach((row) => {
+            supabaseMap[row["nama_siswa"]] = row["hlm_saat_ini"];
+            supabaseNamaList.push(row["nama_siswa"]);
+          });
+        }
+
+        // Cek data baru & data hapus
+        const muridBaru = namaCsvList
+          .filter((nama) => !supabaseNamaList.includes(nama))
+          .map((nama) => ({ nama_siswa: nama, hlm_saat_ini: "-" }));
+
+        const muridHapus = supabaseNamaList.filter(
+          (nama) => !namaCsvList.includes(nama),
+        );
+
+        // Eksekusi database di background
+        const promises = [];
+        if (muridBaru.length > 0) {
+          promises.push(supabase.from("progres_murid").insert(muridBaru));
+        }
+        if (muridHapus.length > 0) {
+          promises.push(
+            supabase
+              .from("progres_murid")
+              .delete()
+              .in("nama_siswa", muridHapus),
+          );
+        }
+
+        if (promises.length > 0) {
+          await Promise.all(promises);
+
+          // Refresh ulang data halaman dari Supabase setelah sinkronisasi selesai
+          const { data: refreshedData } = await supabase
+            .from("progres_murid")
+            .select("nama_siswa, hlm_saat_ini");
+
+          if (refreshedData) {
+            refreshedData.forEach((row) => {
+              supabaseMap[row["nama_siswa"]] = row["hlm_saat_ini"];
+            });
+
+            const finalData = parsedData.map((murid) => ({
+              ...murid,
+              halaman: supabaseMap[murid.nama] ?? "-",
+            }));
+
+            setMuridList(finalData);
+            if (onSuccess) onSuccess();
+          }
+        }
+      } catch (bgError) {
+        console.error("Sinkronisasi latar belakang gagal:", bgError);
+      }
+    }, 50);
   } catch (error) {
-    console.error("Error loading and syncing data:", error);
+    console.error("Error loading CSV:", error);
     if (container) {
       container.innerHTML = `
         <div class="p-8 text-center text-red-500 font-medium text-xs">
@@ -187,9 +199,6 @@ export async function loadDataFromCSV(onSuccess, onError) {
   }
 }
 
-// ==========================================
-// FUNGSI 3: REAL-TIME LISTENER SUPABASE
-// ==========================================
 // ==========================================
 // FUNGSI 3: REAL-TIME LISTENER SUPABASE (DENGAN AUTO-RECONNECT)
 // ==========================================
