@@ -102,30 +102,42 @@ export async function loadDataFromCSV(onSuccess, onError) {
   const container = document.getElementById("table-body");
   const CACHE_KEY = "cache_murid_tahsin";
 
+  let hasCachedData = false;
+
   try {
-    // 1. STALE: Cek apakah ada data cache di localStorage untuk ditampilkan secara instan
+    // 1. STALE: Cek apakah ada cache lokal
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (cachedData) {
       try {
         const parsedCache = JSON.parse(cachedData);
         if (Array.isArray(parsedCache) && parsedCache.length > 0) {
-          // Render data lama secara instan tanpa menunggu fetch jaringan
+          hasCachedData = true;
+          // Render data lama secara instan (0 detik untuk kunjungan berikutnya)
           setMuridList(parsedCache);
           if (onSuccess) onSuccess();
         }
       } catch (e) {
         console.error("Gagal memparsing cache lokal:", e);
       }
-    } else if (container && !cachedData) {
-      // Jika belum ada cache sama sekali (user baru), tampilkan indikator loading awal
-      container.innerHTML = `
-        <div class="p-8 text-center text-gray-400 font-medium text-xs">
-          Memuat data murid...
-        </div>
-      `;
     }
 
-    // 2. REVALIDATE: Tarik data terbaru dari Google Sheets (CSV) dan sinkronisasi Supabase di latar belakang
+    // 2. Jika TIDAK ADA CACHE (User Baru / Cache Kosong), tampilkan Skeleton Loading
+    if (!hasCachedData && container) {
+      let skeletonHTML = "";
+      for (let i = 0; i < 5; i++) {
+        skeletonHTML += `
+          <tr class="animate-pulse border-b border-gray-100">
+            <td class="p-4"><div class="h-3 bg-gray-200 rounded w-6"></div></td>
+            <td class="p-4"><div class="h-3 bg-gray-200 rounded w-32"></div></td>
+            <td class="p-4"><div class="h-3 bg-gray-200 rounded w-8"></div></td>
+            <td class="p-4"><div class="h-3 bg-gray-200 rounded w-16"></div></td>
+          </tr>
+        `;
+      }
+      container.innerHTML = skeletonHTML;
+    }
+
+    // 3. REVALIDATE: Tarik data terbaru dari CSV Google Sheets dan sinkronisasi Supabase di latar belakang
     const response = await fetch(CSV_URL);
     if (!response.ok)
       throw new Error("Gagal mengambil data dari Google Sheets");
@@ -153,7 +165,7 @@ export async function loadDataFromCSV(onSuccess, onError) {
       });
     }
 
-    // Cek data baru & data hapus untuk sinkronisasi database
+    // Sinkronisasi data baru / hapus ke Supabase
     const muridBaru = namaCsvList
       .filter((nama) => !supabaseNamaList.includes(nama))
       .map((nama) => ({ nama_siswa: nama, hlm_saat_ini: "-" }));
@@ -176,7 +188,6 @@ export async function loadDataFromCSV(onSuccess, onError) {
       await Promise.all(promises);
     }
 
-    // Ambil ulang progres terbaru dari Supabase setelah sinkronisasi
     const { data: refreshedData } = await supabase
       .from("progres_murid")
       .select("nama_siswa, hlm_saat_ini");
@@ -193,10 +204,10 @@ export async function loadDataFromCSV(onSuccess, onError) {
       halaman: supabaseMap[murid.nama] ?? "-",
     }));
 
-    // 3. SIMPAN KE CACHE & UPDATE UI: Simpan data segar ke localStorage untuk kunjungan berikutnya
+    // Simpan ke localStorage untuk kunjungan berikutnya
     localStorage.setItem(CACHE_KEY, JSON.stringify(finalData));
 
-    // Timpa tampilan lama dengan data real-time yang baru
+    // Perbarui UI dengan data real-time terbaru
     setMuridList(finalData);
     if (onSuccess) onSuccess();
   } catch (error) {
