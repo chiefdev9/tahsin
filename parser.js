@@ -1,5 +1,5 @@
 // ==========================================
-// PARSER CSV ROBUST & SUPABASE REALTIME SYNC
+// PARSER CSV ROBUST & SUPABASE REALTIME SYNC (OPTIMIZED)
 // ==========================================
 
 import { CSV_URL, cleanNamaGuru, setMuridList, muridList } from "./state.js";
@@ -7,7 +7,7 @@ import { supabase } from "./supabaseClient.js";
 import { renderTable } from "./ui.js";
 
 // ==========================================
-// FUNGSI 1: PARSER CSV UTAMA
+// FUNGSI 1: PARSER CSV UTAMA (TETAP SAMA)
 // ==========================================
 export function parseCSV(csvText) {
   const lines = [];
@@ -96,20 +96,35 @@ export function parseCSV(csvText) {
 }
 
 // ==========================================
-// FUNGSI 2: AUTO-SYNC SUPABASE & LOAD DATA
+// FUNGSI 2: AUTO-SYNC SUPABASE & LOAD DATA (DENGAN LOCALSTORAGE CACHE)
 // ==========================================
 export async function loadDataFromCSV(onSuccess, onError) {
   const container = document.getElementById("table-body");
-  if (container) {
+
+  // OPTIMASI: Cek apakah ada data cache tersimpan di HP pengguna
+  const cachedData = localStorage.getItem("qiroati_cache_data");
+  if (cachedData) {
+    try {
+      const parsedCache = JSON.parse(cachedData);
+      setMuridList(parsedCache);
+      if (typeof renderTable === "function") {
+        renderTable(); // Render instan detik itu juga!
+      }
+      if (onSuccess) onSuccess(); // Langsung hilangkan loading overlay
+    } catch (e) {
+      console.error("Gagal membaca cache lokal:", e);
+    }
+  } else if (container) {
+    // Jika belum ada cache sama sekali (baru pertama kali install), tampilkan teks loading tipis
     container.innerHTML = `
       <div class="p-8 text-center text-gray-400 font-medium text-xs">
-        Memuat dan menyinkronkan data murid...
+        Memuat data pertama kali...
       </div>
     `;
   }
 
   try {
-    // 1. Ambil data dari CSV / Google Sheets
+    // Proses jaringan berjalan di latar belakang (Background Sync)
     const response = await fetch(CSV_URL);
     if (!response.ok)
       throw new Error("Gagal mengambil data dari Google Sheets");
@@ -121,7 +136,7 @@ export async function loadDataFromCSV(onSuccess, onError) {
       .map((m) => m.nama)
       .filter((nama) => nama !== "");
 
-    // 2. Ambil data progres dari database Supabase
+    // Ambil data progres dari database Supabase
     const { data: supabaseData, error: fetchError } = await supabase
       .from("progres_murid")
       .select("nama_siswa, hlm_saat_ini");
@@ -139,7 +154,7 @@ export async function loadDataFromCSV(onSuccess, onError) {
       ? supabaseData.map((row) => row["nama_siswa"])
       : [];
 
-    // 3. Masukkan murid baru dari CSV ke Supabase jika belum ada
+    // Masukkan murid baru dari CSV ke Supabase jika belum ada
     const muridBaru = namaCsvList
       .filter((nama) => !supabaseNamaList.includes(nama))
       .map((nama) => ({ nama_siswa: nama, hlm_saat_ini: "-" }));
@@ -148,7 +163,7 @@ export async function loadDataFromCSV(onSuccess, onError) {
       await supabase.from("progres_murid").insert(muridBaru);
     }
 
-    // 4. Hapus data murid di Supabase jika sudah tidak ada di CSV
+    // Hapus data murid di Supabase jika sudah tidak ada di CSV
     const muridHapus = supabaseNamaList.filter(
       (nama) => !namaCsvList.includes(nama),
     );
@@ -159,7 +174,7 @@ export async function loadDataFromCSV(onSuccess, onError) {
         .in("nama_siswa", muridHapus);
     }
 
-    // 5. Gabungkan data halaman dari Supabase ke state aplikasi
+    // Gabungkan data halaman dari Supabase ke state aplikasi
     const finalData = parsedData.map((murid) => {
       return {
         ...murid,
@@ -171,15 +186,25 @@ export async function loadDataFromCSV(onSuccess, onError) {
       };
     });
 
+    // Simpan ke State Utama
     setMuridList(finalData);
+
+    // SIMPAN KE LOCALSTORAGE SEBAGAI CACHE UNTUK KEDATANGAN BERIKUTNYA
+    localStorage.setItem("qiroati_cache_data", JSON.stringify(finalData));
+
+    // Perbarui UI dengan data terbaru dari internet secara senyap
+    if (typeof renderTable === "function") {
+      renderTable();
+    }
 
     if (onSuccess) onSuccess();
   } catch (error) {
-    console.error("Error loading and syncing data:", error);
-    if (container) {
+    console.error("Error loading and syncing data (Background):", error);
+    // Jika gagal terhubung internet dan belum ada cache sama sekali
+    if (!localStorage.getItem("qiroati_cache_data") && container) {
       container.innerHTML = `
         <div class="p-8 text-center text-red-500 font-medium text-xs">
-          Gagal memuat data murid. Silakan periksa koneksi internet atau link CSV.
+          Gagal memuat data. Periksa koneksi internet Anda.
         </div>
       `;
     }
@@ -187,9 +212,6 @@ export async function loadDataFromCSV(onSuccess, onError) {
   }
 }
 
-// ==========================================
-// FUNGSI 3: REAL-TIME LISTENER SUPABASE
-// ==========================================
 // ==========================================
 // FUNGSI 3: REAL-TIME LISTENER SUPABASE (DENGAN AUTO-RECONNECT)
 // ==========================================
@@ -209,6 +231,9 @@ export function initRealtimeSync() {
         if (targetMurid) {
           targetMurid.halaman = halamanBaru;
 
+          // Update juga cache lokal agar tetap sinkron
+          localStorage.setItem("qiroati_cache_data", JSON.stringify(muridList));
+
           if (typeof renderTable === "function") {
             renderTable();
           }
@@ -216,7 +241,6 @@ export function initRealtimeSync() {
       }
     )
     .subscribe((status) => {
-      // Jika koneksi terputus di HP (misal layar mati/pindah jaringan), coba hubungkan kembali
       if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
         console.warn("Koneksi Realtime terputus, mencoba menghubungkan ulang...");
         setTimeout(() => {
