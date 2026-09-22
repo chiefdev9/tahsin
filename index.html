@@ -24,13 +24,12 @@
     <!-- FULL-SCREEN LOADING OVERLAY (HANYA SPINNER) -->
     <!-- ========================================== -->
     <div id="app-loading-overlay"
-        class="fixed inset-0 bg-white backdrop-blur-sm z-[100] flex items-center justify-center transition-opacity duration-300">
-        <!-- Spinner Berputar Warna Indigo Senada -->
-        <div class="relative">
-            <div class="w-12 h-12 rounded-full border-4 border-indigo-100"></div>
-            <div
-                class="w-12 h-12 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin absolute top-0 left-0">
-            </div>
+        class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[100] flex items-center justify-center transition-opacity duration-300">
+        <!-- Tiga Titik Berdenyut -->
+        <div class="flex space-x-2">
+            <div class="w-3.5 h-3.5 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div class="w-3.5 h-3.5 bg-indigo-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div class="w-3.5 h-3.5 bg-indigo-600 rounded-full animate-bounce"></div>
         </div>
     </div>
 
