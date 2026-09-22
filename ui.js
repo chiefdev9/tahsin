@@ -356,8 +356,8 @@ const PEMETAAN_RUANG = {
     Nining: "Granada",
     Yoga: "Aula",
     Vera: "Mushola",
-    Syukron: "Cordoba",
-    Tris: "Mushola",
+    Syukron: "Mushola",
+    Tris: "Cordoba",
   },
   Siang: {
     Fahmi: "Fez",
