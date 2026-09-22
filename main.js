@@ -24,6 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Callback ketika data CSV berhasil dimuat dan diparse
     updateUI();
 
+    // Sembunyikan full-screen loading overlay setelah data selesai dirender
+    const loadingOverlay = document.getElementById("app-loading-overlay");
+    if (loadingOverlay) {
+      loadingOverlay.classList.add("opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        loadingOverlay.style.display = "none";
+      }, 300);
+    }
+
     // Nyalakan pendengar perubahan real-time dari Supabase
     initRealtimeSync();
   });
