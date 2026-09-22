@@ -14,8 +14,7 @@ import { supabase } from "./supabaseClient.js"; // Mengimpor koneksi Supabase un
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 // ==========================================
 export function toggleName(element) {
-  // Beri toleransi 2 piksel
-  const isTruncated = element.scrollWidth > element.clientWidth + 6;
+  const isTruncated = element.scrollWidth > element.clientWidth;
   const isExpanded =
     element.classList.contains("whitespace-nowrap") &&
     !element.classList.contains("truncate");
