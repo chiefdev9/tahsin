@@ -20,16 +20,13 @@
 
 <body class="bg-gray-100 min-h-screen pb-24 p-4 sm:p-6 text-gray-800 font-sans">
 
-    <!--LOADING-->>
+    <!-- ========================================== -->
+    <!-- FULL-SCREEN LOADING OVERLAY (PUTIH 100%)    -->
+    <!-- ========================================== -->
     <div id="app-loading-overlay"
-        class="fixed inset-0 bg-white backdrop-blur-sm z-[100] flex items-center justify-center transition-opacity duration-300">
-        <!-- Baris Batang Berdenyut -->
-        <div class="flex items-center space-x-1.5 h-10">
-            <div class="w-2 bg-indigo-600 rounded-full animate-pulse h-6"></div>
-            <div class="w-2 bg-indigo-600 rounded-full animate-pulse h-10 [animation-delay:0.2s]"></div>
-            <div class="w-2 bg-indigo-600 rounded-full animate-pulse h-8 [animation-delay:0.4s]"></div>
-            <div class="w-2 bg-indigo-600 rounded-full animate-pulse h-5 [animation-delay:0.6s]"></div>
-        </div>
+        class="fixed inset-0 bg-white z-[100] flex items-center justify-center transition-opacity duration-300">
+        <!-- Spinner Bawaan Tailwind yang Simpel & Profesional -->
+        <div class="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
     </div>
 
     <!-- ========================================== -->
