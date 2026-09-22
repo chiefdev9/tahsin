@@ -26,7 +26,7 @@ export function toggleName(element) {
     !element.classList.contains("truncate");
 
   // Jika nama tidak terpotong dan belum di-expand, jangan jalankan fungsi
-  if (!isTruncated && !isExpanded) return;
+  if (!isLongName && !isExpanded) return;
 
   const parentRow = element.closest(".grid");
   if (!parentRow) return;
