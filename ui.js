@@ -14,19 +14,14 @@ import { supabase } from "./supabaseClient.js"; // Mengimpor koneksi Supabase un
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 // ==========================================
 export function toggleName(element) {
-  // Cek apakah teks lebih dari 15 karakter
-  const isLongName = element.innerText.length > 15;
-  const isExpanded =
-    element.classList.contains("whitespace-nowrap") &&
-    !element.classList.contains("truncate");
-
-  if (!isLongName && !isExpanded) return;
+  // Beri toleransi 2 piksel
+  const isTruncated = element.scrollWidth > element.clientWidth + 6;
   const isExpanded =
     element.classList.contains("whitespace-nowrap") &&
     !element.classList.contains("truncate");
 
   // Jika nama tidak terpotong dan belum di-expand, jangan jalankan fungsi
-  if (!isLongName && !isExpanded) return;
+  if (!isTruncated && !isExpanded) return;
 
   const parentRow = element.closest(".grid");
   if (!parentRow) return;
