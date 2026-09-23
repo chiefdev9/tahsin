@@ -250,10 +250,8 @@ export function updateUI() {
   renderTable();
 }
 
+
 // ==========================================
-// 4. KONTROL INTERAKSI DROPDOWN
-// ==========================================
-/ ==========================================
 // 4. KONTROL INTERAKSI DROPDOWN & DRAG GESTURE
 // ==========================================
 
