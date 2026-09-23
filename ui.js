@@ -267,22 +267,22 @@ export function toggleDropdown(dropdownId) {
   const backdrop = document.getElementById("dropdown-backdrop");
   if (!targetMenu) return;
 
-  const isClosed = targetMenu.classList.contains("hidden") || targetMenu.classList.contains("translate-y-full");
+  const isHidden = targetMenu.classList.contains("hidden");
   closeAllDropdowns();
 
-  if (isClosed) {
-    // 1. Munculkan elemen dari display hidden, posisikan dulu di bawah layar
+  if (isHidden) {
+    // 1. Munculkan elemen dari display hidden, posisikan langsung di bawah layar
     targetMenu.classList.remove("hidden");
-    targetMenu.classList.add("translate-y-full");
-    targetMenu.style.transform = "";
-
-    // 2. Beri jeda singkat agar browser merender posisi awal, lalu luncurkan ke atas (0)
-    setTimeout(() => {
-      targetMenu.classList.remove("translate-y-full");
-      targetMenu.style.transform = "translateY(0)";
-    }, 10);
+    targetMenu.style.transform = "translateY(100%)";
+    targetMenu.classList.remove("translate-y-full");
 
     if (backdrop) backdrop.classList.remove("hidden");
+    
+    // 2. Beri jeda singkat agar browser siap, lalu luncurkan mulus ke atas (0)
+    setTimeout(() => {
+      targetMenu.style.transition = "transform 0.3s ease-out";
+      targetMenu.style.transform = "translateY(0)";
+    }, 20);
     
     // Inisialisasi event gesture drag pada menu ini
     initDraggableSheet(targetMenu);
@@ -291,15 +291,15 @@ export function toggleDropdown(dropdownId) {
 
 export function closeAllDropdowns() {
   document.querySelectorAll(".dropdown-menu").forEach((menu) => {
-    // Geser ke bawah layar terlebih dahulu
-    menu.classList.add("translate-y-full");
-    menu.style.transform = "";
+    // Geser turun ke bawah layar dengan animasi
+    menu.style.transition = "transform 0.3s ease-out";
+    menu.style.transform = "translateY(100%)";
 
-    // Sembunyikan total dengan kelas 'hidden' setelah animasi penutupan selesai (300ms)
+    // Sembunyikan total dengan kelas 'hidden' setelah animasi selesai (300ms)
     setTimeout(() => {
-      if (menu.classList.contains("translate-y-full")) {
-        menu.classList.add("hidden");
-      }
+      menu.classList.add("hidden");
+      menu.style.transform = "";
+      menu.style.transition = "";
     }, 300);
   });
 
@@ -327,7 +327,7 @@ function initDraggableSheet(targetMenu) {
   dragHandle.addEventListener("pointerdown", (e) => {
     startY = e.clientY;
     activeSheet = targetMenu;
-    activeSheet.style.transition = "none"; // Matikan transisi agar responsif mengikuti pergerakan jari
+    activeSheet.style.transition = "none"; // Matikan transisi agar responsif mengikuti pergerakan jari secara instan
     dragHandle.setPointerCapture(e.pointerId);
   });
 
