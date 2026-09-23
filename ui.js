@@ -354,7 +354,7 @@ const PEMETAAN_RUANG = {
     Retno: "Cairo",
     Dian: "Aula",
     Nining: "Granada",
-    Yoga: "Aula",
+    Yoga: "Mushola",
     Vera: "Mushola",
     Syukron: "Mushola",
     Tris: "Cordoba",
