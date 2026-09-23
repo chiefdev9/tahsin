@@ -253,6 +253,14 @@ export function updateUI() {
 // ==========================================
 // 4. KONTROL INTERAKSI DROPDOWN
 // ==========================================
+/ ==========================================
+// 4. KONTROL INTERAKSI DROPDOWN & DRAG GESTURE
+// ==========================================
+
+let startY = 0;
+let currentY = 0;
+let activeSheet = null;
+
 export function toggleDropdown(dropdownId) {
   const targetDropdown = document.getElementById(dropdownId);
   if (!targetDropdown) return;
@@ -261,18 +269,31 @@ export function toggleDropdown(dropdownId) {
   const backdrop = document.getElementById("dropdown-backdrop");
   if (!targetMenu) return;
 
-  const isHidden = targetMenu.classList.contains("hidden");
+  const isHidden = targetMenu.classList.contains("translate-y-full") || targetMenu.classList.contains("hidden");
   closeAllDropdowns();
 
   if (isHidden) {
     targetMenu.classList.remove("hidden");
+    // Sedikit jeda agar transisi CSS terbaca saat elemen muncul dari bawah
+    setTimeout(() => {
+      targetMenu.classList.remove("translate-y-full");
+    }, 10);
+
     if (backdrop) backdrop.classList.remove("hidden");
+    
+    // Inisialisasi event gesture drag pada menu ini
+    initDraggableSheet(targetMenu);
   }
 }
 
 export function closeAllDropdowns() {
   document.querySelectorAll(".dropdown-menu").forEach((menu) => {
-    menu.classList.add("hidden");
+    menu.classList.add("translate-y-full");
+    setTimeout(() => {
+      if (menu.classList.contains("translate-y-full")) {
+        menu.classList.add("hidden");
+      }
+    }, 300);
   });
 
   const backdrop = document.getElementById("dropdown-backdrop");
@@ -286,6 +307,58 @@ export function selectOption(dropdownId, value) {
 
   updateUI();
   closeAllDropdowns();
+}
+
+// --- LOGIKA GESTURE DRAG ELASTIS (BISA DITARIK NAIK-TURUN) ---
+function initDraggableSheet(targetMenu) {
+  const dragHandle = targetMenu.querySelector(".drag-handle") || targetMenu.querySelector("div");
+  if (!dragHandle || dragHandle.dataset.dragInitialized) return;
+  
+  dragHandle.dataset.dragInitialized = "true";
+  dragHandle.classList.add("cursor-grab", "active:cursor-grabbing", "touch-none");
+
+  dragHandle.addEventListener("pointerdown", (e) => {
+    startY = e.clientY;
+    activeSheet = targetMenu;
+    activeSheet.style.transition = "none"; // Matikan transisi agar ngikutin jari secara instan tanpa jeda
+    dragHandle.setPointerCapture(e.pointerId);
+  });
+
+  dragHandle.addEventListener("pointermove", (e) => {
+    if (startY === 0 || activeSheet !== targetMenu) return;
+    currentY = e.clientY - startY;
+    
+    // Jika ditarik ke bawah (positif), ikuti jari sepenuhnya.
+    // Jika ditarik ke atas (negatif), berikan sedikit tahanan/resistensi agar terasa kenyal.
+    if (currentY >= 0) {
+      activeSheet.style.transform = `translateY(${currentY}px)`;
+    } else {
+      activeSheet.style.transform = `translateY(${currentY * 0.3}px)`;
+    }
+  });
+
+  dragHandle.addEventListener("pointerup", (e) => {
+    if (startY === 0 || activeSheet !== targetMenu) return;
+    
+    // Berikan efek transisi pegas memantul (spring bounce) saat jari dilepas
+    activeSheet.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    
+    const sheetHeight = activeSheet.offsetHeight;
+
+    // Jika ditarik ke bawah melebihi 20% tinggi menu, tutup otomatis. 
+    // Jika cuma ditarik-tarik main lalu dilepas kurang dari itu, pantulkan kembali ke atas (0).
+    if (currentY > sheetHeight * 0.2) {
+      closeAllDropdowns();
+      activeSheet.style.transform = "";
+    } else {
+      activeSheet.style.transform = "translateY(0)";
+    }
+
+    startY = 0;
+    currentY = 0;
+    activeSheet = null;
+    dragHandle.releasePointerCapture(e.pointerId);
+  });
 }
 
 // ==========================================
