@@ -48,6 +48,12 @@ export function toggleName(element) {
 // 2. RENDER TABEL
 // ==========================================
 export function renderTable() {
+  // 🛑 PENGAMAN: Jangan render ulang tabel jika user sedang fokus/mengedit sel
+  const activeElement = document.activeElement;
+  if (activeElement && activeElement.classList.contains("editable-halaman")) {
+    return;
+  }
+
   const container = document.getElementById("table-body");
   if (!container) return;
 
@@ -330,6 +336,12 @@ function attachEditableEvents() {
         }
       } catch (err) {
         console.error("Kesalahan jaringan saat menyimpan ke Supabase:", err);
+      }
+
+      // 💡 SOLUSI: Gunakan setTimeout untuk menunda re-render/sorting tabel 
+      // sehingga tidak langsung mereset DOM saat user pindah antar kolom editable.
+      if (typeof window.debouncedSortAndRender === "function") {
+        window.debouncedSortAndRender();
       }
     });
 
