@@ -43,10 +43,20 @@
 <!-- PWA -->
     <link rel="manifest" href="manifest.json">
 
+<!-- matikan refresh dari atas secara di drag -->
+    <style>
+
+  html, body {
+    overscroll-behavior-y: none;
+    position: relative;
+    height: 100%;
+  }
+</style>
+
 </head>
 
 
-<body class="bg-gray-100 min-h-screen pb-24 p-4 sm:p-6 text-gray-800 font-sans overscroll-y-none">
+<body class="bg-gray-100 min-h-screen pb-24 p-4 sm:p-6 text-gray-800 font-sans">
 
     <!-- ========================================== -->
     <!-- FULL-SCREEN LOADING OVERLAY (PUTIH 100%)    -->
