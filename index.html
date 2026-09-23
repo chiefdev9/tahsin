@@ -70,11 +70,11 @@
     <!-- ========================================== -->
     <!-- 2. KONTEN UTAMA: TABEL DATA                -->
     <!-- ========================================== -->
-    <div class="max-w-md mx-auto bg-white shadow-md mb-20 border border-gray-200">
+    <div class="max-w-md mx-auto bg-white shadow-md mb-20 border border-gray-200 max-h-[70vh] flex flex-col overflow-hidden">
 
-        <!-- Header Tabel -->
+        <!-- Header Tabel (Sticky di atas dan tidak ikut terseret scroll) -->
         <div
-            class="sticky top-0 z-10 grid grid-cols-[7%_51%_10%_32%] bg-indigo-600 text-white font-semibold text-sm py-3 px-2 items-center">
+            class="sticky top-0 z-10 grid grid-cols-[7%_51%_10%_32%] bg-indigo-600 text-white font-semibold text-sm py-3 px-2 items-center shrink-0">
             <div class="text-center">No</div>
 
             <!-- Header Daftar Murid di tengah -->
@@ -84,8 +84,8 @@
             <div id="header-kategori" class="text-center px-1">Jilid</div>
         </div>
 
-        <!-- Body Tabel (Diisi secara dinamis via JavaScript dengan struktur yang menggunakan min-w-0) -->
-        <div id="table-body" class="divide-y divide-gray-200 text-sm"></div>
+        <!-- Body Tabel (Bisa di-scroll mandiri ke bawah jika datanya panjang) -->
+        <div id="table-body" class="divide-y divide-gray-200 text-sm overflow-y-auto flex-1"></div>
 
     </div>
 
