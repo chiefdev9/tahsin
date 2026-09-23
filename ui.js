@@ -267,29 +267,46 @@ export function toggleDropdown(dropdownId) {
   const backdrop = document.getElementById("dropdown-backdrop");
   if (!targetMenu) return;
 
-  const isHidden = targetMenu.classList.contains("translate-y-full") || targetMenu.classList.contains("hidden");
-  closeAllDropdowns();
-
+  const isHidden = targetMenu.classList.contains("hidden");
+  
   if (isHidden) {
+    // Tutup dropdown lain dulu tanpa jeda aneh
+    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+      if (menu !== targetMenu) {
+        menu.classList.add("translate-y-full");
+        menu.classList.add("hidden");
+      }
+    });
+
+    // Munculkan menu ini secara halus
     targetMenu.classList.remove("hidden");
-    // Sedikit jeda agar transisi CSS terbaca saat elemen muncul dari bawah
-    setTimeout(() => {
-      targetMenu.classList.remove("translate-y-full");
-    }, 10);
+    targetMenu.style.transition = "none";
+    targetMenu.style.transform = "translateY(100%)";
+    
+    // Paksa browser membaca posisi awal, lalu jalankan animasi geser ke atas (0)
+    targetMenu.offsetHeight; 
+    targetMenu.style.transition = "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)";
+    targetMenu.style.transform = "translateY(0)";
+    targetMenu.classList.remove("translate-y-full");
 
     if (backdrop) backdrop.classList.remove("hidden");
-    
-    // Inisialisasi event gesture drag pada menu ini
     initDraggableSheet(targetMenu);
+  } else {
+    closeAllDropdowns();
   }
 }
 
 export function closeAllDropdowns() {
   document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+    menu.style.transition = "transform 0.3s ease-in";
+    menu.style.transform = "translateY(100%)";
     menu.classList.add("translate-y-full");
+    
     setTimeout(() => {
       if (menu.classList.contains("translate-y-full")) {
         menu.classList.add("hidden");
+        menu.style.transition = "";
+        menu.style.transform = "";
       }
     }, 300);
   });
