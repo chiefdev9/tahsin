@@ -14,6 +14,9 @@ import { supabase } from "./supabaseClient.js"; // Mengimpor koneksi Supabase un
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 // ==========================================
 export function toggleName(element) {
+  // 💡 PENGAMAN: Jika user baru saja selesai edit dan klik nama untuk blur, abaikan fungsi ini
+  if (typeof isEditingHalaman !== 'undefined' && isEditingHalaman) return;
+
   const isExpanded =
     element.classList.contains("whitespace-nowrap") &&
     !element.classList.contains("truncate");
@@ -387,6 +390,7 @@ function attachEditableEvents() {
     cell.addEventListener("focus", (e) => {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
+      isEditingHalaman = true; // Tandai sedang dalam mode edit
       const currentValue = e.target.innerText.trim();
       e.target.dataset.original = currentValue;
       e.target.innerText = "";
@@ -403,6 +407,7 @@ function attachEditableEvents() {
       // Jika user tidak mengetik apapun, kembalikan ke nilai awal
       if (newValue === "") {
         e.target.innerText = originalValue;
+        setTimeout(() => { isEditingHalaman = false; }, 200);
         return;
       }
 
@@ -426,11 +431,14 @@ function attachEditableEvents() {
         console.error("Kesalahan jaringan saat menyimpan ke Supabase:", err);
       }
 
-      // 💡 SOLUSI: Gunakan setTimeout untuk menunda re-render/sorting tabel 
-      // sehingga tidak langsung mereset DOM saat user pindah antar kolom editable.
       if (typeof window.debouncedSortAndRender === "function") {
         window.debouncedSortAndRender();
       }
+
+      // 💡 KUNCI PENGAMAN: Beri jeda sedikit sebelum membuka flag pengaman klik nama
+      setTimeout(() => {
+        isEditingHalaman = false;
+      }, 300);
     });
 
     // 3. Saat tekan Enter: Selesaikan editan (pemicu event 'blur')
