@@ -14,7 +14,7 @@ import { supabase } from "./supabaseClient.js"; // Mengimpor koneksi Supabase un
 // 1. LOGIKA TOGGLE NAMA (HANYA UNTUK NAMA TERPOTONG)
 // ==========================================
 export function toggleName(element) {
-  // 💡 PENGAMAN: Jika user baru saja selesai edit dan klik nama untuk blur, abaikan fungsi ini
+  // Jika sedang dalam proses edit halaman, abaikan fungsi toggle sama sekali
   if (typeof isEditingHalaman !== 'undefined' && isEditingHalaman) return;
 
   const isExpanded =
@@ -27,22 +27,16 @@ export function toggleName(element) {
   const extraCols = parentRow.querySelectorAll(".extra-col");
 
   if (!isExpanded) {
-    // Sembunyikan kolom ekstra (JK & Kategori)
     extraCols.forEach((col) => col.classList.add("hidden"));
-
-    // Ubah layout nama agar panjang & bisa di-scroll
     element.classList.remove("truncate");
     element.classList.add("col-span-3", "whitespace-nowrap", "overflow-x-auto");
   } else {
-    // Kembalikan ke tampilan terpotong semula
     element.classList.remove(
       "col-span-3",
       "whitespace-nowrap",
       "overflow-x-auto",
     );
     element.classList.add("truncate");
-
-    // Tampilkan kembali kolom ekstra
     extraCols.forEach((col) => col.classList.remove("hidden"));
   }
 }
@@ -386,17 +380,17 @@ function attachEditableEvents() {
   const editableCells = document.querySelectorAll(".editable-halaman");
 
   editableCells.forEach((cell) => {
-    // 1. Saat diklik / fokus: Simpan nilai asli, lalu kosongkan teks
+    // 1. Saat diklik / fokus: Simpan nilai asli, lalu kosongkan teks agar user langsung ketik nilai baru
     cell.addEventListener("focus", (e) => {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
-      isEditingHalaman = true; // Tandai sedang dalam mode edit
+      isEditingHalaman = true;
       const currentValue = e.target.innerText.trim();
       e.target.dataset.original = currentValue;
       e.target.innerText = "";
     });
 
-    // 2. Saat klik di luar / lepas fokus (blur): Perbarui state memori dan simpan ke Supabase
+    // 2. Saat klik di luar / lepas fokus (blur)
     cell.addEventListener("blur", async (e) => {
       if (filterState.kategori.toLowerCase() !== "halaman") return;
 
@@ -404,10 +398,10 @@ function attachEditableEvents() {
       const originalValue = e.target.dataset.original || "-";
       const namaMurid = e.target.getAttribute("data-nama");
 
-      // Jika user tidak mengetik apapun, kembalikan ke nilai awal
+      // Poin 2b: Jika user batal / tidak mengetik apapun (kosong), kembalikan ke nilai awal
       if (newValue === "") {
         e.target.innerText = originalValue;
-        setTimeout(() => { isEditingHalaman = false; }, 200);
+        setTimeout(() => { isEditingHalaman = false; }, 100);
         return;
       }
 
@@ -417,7 +411,7 @@ function attachEditableEvents() {
         muridTarget["halaman"] = newValue;
       }
 
-      // Kirim pembaruan data secara otomatis ke tabel Supabase (Multi-perangkat sync)
+      // Kirim pembaruan ke Supabase
       try {
         const { error } = await supabase
           .from("progres_murid")
@@ -435,13 +429,13 @@ function attachEditableEvents() {
         window.debouncedSortAndRender();
       }
 
-      // 💡 KUNCI PENGAMAN: Beri jeda sedikit sebelum membuka flag pengaman klik nama
+      // Lepaskan pengaman flag setelah proses selesai
       setTimeout(() => {
         isEditingHalaman = false;
-      }, 300);
+      }, 150);
     });
 
-    // 3. Saat tekan Enter: Selesaikan editan (pemicu event 'blur')
+    // 3. Saat tekan Enter: Selesaikan editan
     cell.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -450,7 +444,6 @@ function attachEditableEvents() {
     });
   });
 }
-
 // ==========================================
 // 6. INFORMASI RUANGAN OTOMATIS
 // ==========================================
