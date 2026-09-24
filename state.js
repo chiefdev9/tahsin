@@ -67,6 +67,3 @@ export function updateFilterState(key, value) {
     saveLastState("sesi", "Pagi");
   }
 }
-
-// Status global penanda edit
-let isEditingHalaman = false;
