@@ -43,28 +43,6 @@
 <!-- PWA -->
     <link rel="manifest" href="manifest.json">
 
-<!-- matikan refresh dari atas secara di drag -->
-    <style>
-
-  html, body {
-  overscroll-behavior-y: none; /* Tetap matikan pull-to-refresh */
-  height: 100%;
-  margin: 0;
-  overflow: hidden; /* Mencegah body utama ikut bergeser secara liar */
-}
-
-/* Buat pembungkus utama atau area konten bisa di-scroll */
-body {
-  display: flex;
-  flex-direction: column;
-}
-
-.scrollable-content {
-  flex: 1;
-  overflow-y: auto; /* Mengaktifkan scroll hanya di area konten */
-  -webkit-overflow-scrolling: touch;
-}
-</style>
 
 </head>
 
