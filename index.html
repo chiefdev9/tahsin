@@ -46,8 +46,8 @@
 
 </head>
 
-
-<body class="bg-gray-100 min-h-screen pb-24 md:pb-32 p-4 sm:p-6 text-gray-800 font-sans">
+<body
+    class="bg-gray-100 min-h-screen pb-24 md:pb-6 p-4 sm:p-6 text-gray-800 font-sans flex flex-col md:flex-row md:gap-6">
 
     <!-- ========================================== -->
     <!-- FULL-SCREEN LOADING OVERLAY (PUTIH 100%)    -->
@@ -59,20 +59,75 @@
     </div>
 
     <!-- ========================================== -->
+    <!-- 1. CPANEL / SIDEBAR KIRI (KHUSUS DESKTOP)  -->
+    <!-- ========================================== -->
+    <aside
+        class="hidden md:flex flex-col w-72 bg-white shadow-md border border-gray-200 rounded-2xl p-5 sticky top-6 h-[calc(100vh-3rem)] z-40 shrink-0">
+        <div class="mb-6 pb-4 border-b border-gray-100">
+            <h2 class="text-base font-extrabold text-indigo-600 tracking-wide">C-PANEL ADMIN</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Manajemen Sesi & Guru</p>
+        </div>
+
+        <div class="space-y-5 flex-1">
+            <!-- Sidebar: Pilih Guru -->
+            <div>
+                <label class="block text-xs font-extrabold text-gray-400 tracking-wider uppercase mb-2">Pilih
+                    Guru</label>
+                <select id="desktop-guru" onchange="syncSelection('guru', this.value)"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="Vera">Vera</option>
+                    <option value="Nining">Nining</option>
+                    <option value="Dian">Dian</option>
+                    <option value="Nurlaela">Nurlaela</option>
+                    <option value="Yani">Yani</option>
+                    <option value="Retno">Retno</option>
+                    <option value="Tris">Tris</option>
+                    <option value="Fahmi">Fahmi</option>
+                    <option value="Yoga">Yoga</option>
+                    <option value="Syukron">Syukron</option>
+                </select>
+            </div>
+
+            <!-- Sidebar: Pilih Sesi Waktu -->
+            <div>
+                <label class="block text-xs font-extrabold text-gray-400 tracking-wider uppercase mb-2">Sesi
+                    Waktu</label>
+                <select id="desktop-waktu" onchange="syncSelection('waktu', this.value)"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="Pagi">Pagi</option>
+                    <option value="Siang">Siang</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-gray-100 text-center text-xs text-gray-400">
+            Sistem Akademik v1.0
+        </div>
+    </aside>
+
+    <!-- ========================================== -->
     <!-- 2. KONTEN UTAMA: TABEL DATA                -->
     <!-- ========================================== -->
-    <div class="max-w-md mx-auto bg-white shadow-md mb-20 border border-gray-200">
+    <div
+        class="flex-1 max-w-md md:max-w-none mx-auto w-full bg-white shadow-md mb-20 md:mb-0 border border-gray-200 rounded-xl overflow-hidden self-start">
 
-        <!-- Header Tabel -->
+        <!-- Header Tabel (Responsif: HP 4 kolom, Desktop 6 kolom lengkap satu baris) -->
         <div
-            class="sticky top-0 z-10 grid grid-cols-[7%_51%_10%_32%] bg-indigo-600 text-white font-semibold text-sm py-3 px-2 items-center">
+            class="sticky top-0 z-10 grid grid-cols-[7%_51%_10%_32%] md:grid-cols-[6%_34%_8%_16%_18%_18%] bg-indigo-600 text-white font-semibold text-xs sm:text-sm py-3 px-2 md:px-4 items-center">
             <div class="text-center">No</div>
 
-            <!-- Header Daftar Murid di tengah -->
-            <div id="header-daftar-murid" class="text-center">Daftar Murid</div>
+            <!-- Header Daftar Murid di tengah / kiri desktop -->
+            <div id="header-daftar-murid" class="text-center md:text-left md:pl-2">Daftar Murid</div>
 
             <div class="text-center">JK</div>
-            <div id="header-kategori" class="text-center px-1">Jilid</div>
+
+            <!-- Kolom Kategori (Hanya tampil di HP) -->
+            <div id="header-kategori" class="text-center md:hidden px-1">Jilid</div>
+
+            <!-- Kolom Tambahan Khusus Tampilan Laptop/Desktop (Satu Baris Penuh) -->
+            <div class="hidden md:block text-center">Kelas</div>
+            <div class="hidden md:block text-center">Jilid</div>
+            <div class="hidden md:block text-center">Halaman</div>
         </div>
 
         <!-- Body Tabel (Diisi secara dinamis via JavaScript dengan struktur yang menggunakan min-w-0) -->
@@ -88,11 +143,12 @@
         class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity"></div>
 
 
+
     <!-- ========================================== -->
-    <!-- 4. NAVIGASI BAWAH (STICKY BOTTOM BAR)      -->
+    <!-- 4. NAVIGASI BAWAH (STICKY BOTTOM BAR - HP) -->
     <!-- ========================================== -->
     <div
-        class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl z-50">
+        class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl z-50">
 
         <!-- KOLOM TAMBAHAN: RUANG ALEXANDRIA -->
         <div
@@ -107,24 +163,26 @@
                 <button type="button" onclick="toggleDropdown('dropdown-guru')"
                     class="w-full bg-gray-100 hover:bg-gray-200/80 text-gray-900 font-bold text-xs sm:text-sm rounded-xl p-3 flex items-center justify-between transition-all outline-none">
                     <span class="selected-text truncate">-</span>
-                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor" stroke-width="2.5"
-                        viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-gray-500 shrink-0 ml-1" fill="none" stroke="currentColor"
+                        stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-            
+
                 <div
                     class="dropdown-menu hidden fixed inset-x-0 bottom-0 z-[60] w-full max-w-lg mx-auto bg-white rounded-t-[28px] shadow-2xl border-t border-gray-100 p-5 space-y-2 transform translate-y-full transition-transform duration-300 ease-out max-h-[80vh] flex flex-col">
-                    <div class="drag-handle w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-2.5 cursor-grab shrink-0"></div>
-                    <div class="px-1 pb-1 text-xs font-extrabold text-gray-400 tracking-wider uppercase shrink-0">PILIH USTAZ /
+                    <div class="drag-handle w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-2.5 cursor-grab shrink-0">
+                    </div>
+                    <div class="px-1 pb-1 text-xs font-extrabold text-gray-400 tracking-wider uppercase shrink-0">PILIH
+                        USTAZ /
                         USTAZAH</div>
-            
+
                     <div class="space-y-1 max-h-[60vh] overflow-y-auto pr-1">
                         <button onclick="selectOption('dropdown-guru', 'Vera')"
                             class="option-btn w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-indigo-50/60 active:bg-indigo-100 transition-colors text-left text-base font-bold text-gray-800">
                             <span>Vera</span>
-                            <svg class="check-icon w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="3"
-                                viewBox="0 0 24 24">
+                            <svg class="check-icon w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </button>
@@ -215,7 +273,8 @@
                     </svg>
                 </button>
 
-                <div class="dropdown-menu hidden fixed inset-x-0 bottom-0 z-[60] w-full max-w-lg mx-auto bg-white rounded-t-[28px] shadow-2xl border-t border-gray-100 p-5 space-y-2 transform translate-y-full transition-transform duration-300 ease-out max-h-[80vh] overflow-y-auto">
+                <div
+                    class="dropdown-menu hidden fixed inset-x-0 bottom-0 z-[60] w-full max-w-lg mx-auto bg-white rounded-t-[28px] shadow-2xl border-t border-gray-100 p-5 space-y-2 transform translate-y-full transition-transform duration-300 ease-out max-h-[80vh] overflow-y-auto">
                     <div class="drag-handle w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-2.5 cursor-grab"></div>
                     <div class="px-1 pb-1 text-xs font-extrabold text-gray-400 tracking-wider uppercase">URUT
                         BERDASARKAN</div>
@@ -260,7 +319,8 @@
                     </svg>
                 </button>
 
-                <div class="dropdown-menu hidden fixed inset-x-0 bottom-0 z-[60] w-full max-w-lg mx-auto bg-white rounded-t-[28px] shadow-2xl border-t border-gray-100 p-5 space-y-2 transform translate-y-full transition-transform duration-300 ease-out max-h-[80vh] overflow-y-auto">
+                <div
+                    class="dropdown-menu hidden fixed inset-x-0 bottom-0 z-[60] w-full max-w-lg mx-auto bg-white rounded-t-[28px] shadow-2xl border-t border-gray-100 p-5 space-y-2 transform translate-y-full transition-transform duration-300 ease-out max-h-[80vh] overflow-y-auto">
                     <div class="drag-handle w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-2.5 cursor-grab"></div>
                     <div class="px-1 pb-1 text-xs font-extrabold text-gray-400 tracking-wider uppercase">PILIH SESI
                     </div>
