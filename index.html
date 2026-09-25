@@ -24,13 +24,13 @@
     <meta property="og:title" content="Tabel Qiroati Smala">
     <meta property="og:description"
         content="Aplikasi pengelolaan dan pemantauan data qiroati multi perangkat secara real-time.">
-    
+
     <!-- BAGIAN INI DISESUAIKAN UNTUK GAMBAR SQUARE -->
     <meta property="og:image" content="https://guru-tahsin.vercel.app/thumb.png">
     <meta property="og:image:width" content="700"> <!-- Contoh: jika gambar Anda 1000x1000 px -->
     <meta property="og:image:height" content="700"> <!-- Sesuaikan dengan ukuran asli gambar Anda -->
     <!-- -------------------------------------- -->
-    
+
     <meta property="og:url" content="https://guru-tahsin.vercel.app/">
     <meta property="og:site_name" content="Tabel Qiroati Smala">
 
@@ -40,14 +40,14 @@
     <!-- Menggunakan favicon.ico sejajar dengan index.html -->
     <link rel="icon" type="image/x-icon" href="./favicon.ico">
 
-<!-- PWA -->
+    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
 
 
 </head>
 
-<body
-    class="bg-gray-100 min-h-screen pb-24 md:pb-6 p-4 sm:p-6 text-gray-800 font-sans flex flex-col md:flex-row md:gap-6">
+
+<body class="bg-gray-100 min-h-screen pb-24 md:pb-32 p-4 sm:p-6 text-gray-800 font-sans">
 
     <!-- ========================================== -->
     <!-- FULL-SCREEN LOADING OVERLAY (PUTIH 100%)    -->
@@ -59,75 +59,20 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 1. CPANEL / SIDEBAR KIRI (KHUSUS DESKTOP)  -->
-    <!-- ========================================== -->
-    <aside
-        class="hidden md:flex flex-col w-72 bg-white shadow-md border border-gray-200 rounded-2xl p-5 sticky top-6 h-[calc(100vh-3rem)] z-40 shrink-0">
-        <div class="mb-6 pb-4 border-b border-gray-100">
-            <h2 class="text-base font-extrabold text-indigo-600 tracking-wide">C-PANEL ADMIN</h2>
-            <p class="text-xs text-gray-400 mt-0.5">Manajemen Sesi & Guru</p>
-        </div>
-
-        <div class="space-y-5 flex-1">
-            <!-- Sidebar: Pilih Guru -->
-            <div>
-                <label class="block text-xs font-extrabold text-gray-400 tracking-wider uppercase mb-2">Pilih
-                    Guru</label>
-                <select id="desktop-guru" onchange="syncSelection('guru', this.value)"
-                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="Vera">Vera</option>
-                    <option value="Nining">Nining</option>
-                    <option value="Dian">Dian</option>
-                    <option value="Nurlaela">Nurlaela</option>
-                    <option value="Yani">Yani</option>
-                    <option value="Retno">Retno</option>
-                    <option value="Tris">Tris</option>
-                    <option value="Fahmi">Fahmi</option>
-                    <option value="Yoga">Yoga</option>
-                    <option value="Syukron">Syukron</option>
-                </select>
-            </div>
-
-            <!-- Sidebar: Pilih Sesi Waktu -->
-            <div>
-                <label class="block text-xs font-extrabold text-gray-400 tracking-wider uppercase mb-2">Sesi
-                    Waktu</label>
-                <select id="desktop-waktu" onchange="syncSelection('waktu', this.value)"
-                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="Pagi">Pagi</option>
-                    <option value="Siang">Siang</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="pt-4 border-t border-gray-100 text-center text-xs text-gray-400">
-            Sistem Akademik v1.0
-        </div>
-    </aside>
-
-    <!-- ========================================== -->
     <!-- 2. KONTEN UTAMA: TABEL DATA                -->
     <!-- ========================================== -->
-    <div
-        class="flex-1 max-w-md md:max-w-none mx-auto w-full bg-white shadow-md mb-20 md:mb-0 border border-gray-200 rounded-xl overflow-hidden self-start">
+    <div class="max-w-md mx-auto bg-white shadow-md mb-20 border border-gray-200">
 
-        <!-- Header Tabel (Responsif: HP 4 kolom, Desktop 6 kolom lengkap satu baris) -->
+        <!-- Header Tabel -->
         <div
-            class="sticky top-0 z-10 grid grid-cols-[7%_51%_10%_32%] md:grid-cols-[6%_34%_8%_16%_18%_18%] bg-indigo-600 text-white font-semibold text-xs sm:text-sm py-3 px-2 md:px-4 items-center">
+            class="sticky top-0 z-10 grid grid-cols-[7%_51%_10%_32%] bg-indigo-600 text-white font-semibold text-sm py-3 px-2 items-center">
             <div class="text-center">No</div>
 
-            <!-- Header Daftar Murid di tengah / kiri desktop -->
-            <div id="header-daftar-murid" class="text-center md:text-left md:pl-2">Daftar Murid</div>
+            <!-- Header Daftar Murid di tengah -->
+            <div id="header-daftar-murid" class="text-center">Daftar Murid</div>
 
             <div class="text-center">JK</div>
-
-            <!-- Kolom Kategori (Hanya tampil di HP) -->
-            <div id="header-kategori" class="text-center md:hidden px-1">Jilid</div>
-
-            <!-- Kolom Tambahan Khusus Tampilan Laptop/Desktop (Satu Baris Penuh) -->
-            <div class="hidden md:block text-center">Kelas</div>
-            <div class="hidden md:block text-center">Jilid</div>
-            <div class="hidden md:block text-center">Halaman</div>
+            <div id="header-kategori" class="text-center px-1">Jilid</div>
         </div>
 
         <!-- Body Tabel (Diisi secara dinamis via JavaScript dengan struktur yang menggunakan min-w-0) -->
@@ -143,12 +88,11 @@
         class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity"></div>
 
 
-
     <!-- ========================================== -->
-    <!-- 4. NAVIGASI BAWAH (STICKY BOTTOM BAR - HP) -->
+    <!-- 4. NAVIGASI BAWAH (STICKY BOTTOM BAR)      -->
     <!-- ========================================== -->
     <div
-        class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl z-50">
+        class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 shadow-2xl z-50">
 
         <!-- KOLOM TAMBAHAN: RUANG ALEXANDRIA -->
         <div
