@@ -462,9 +462,9 @@ const PEMETAAN_RUANG = {
   Siang: {
     Fahmi: "Fez",
     Nurlaela: "Istanbul",
-    Dian: "Marrakech",
+    Dian: "Urfa",
     Nining: "Damascus",
-    Yoga: "Urfa",
+    Yoga: "Marrakech",
     Vera: "Komputer",
     Syukron: "Aleppo",
   },
